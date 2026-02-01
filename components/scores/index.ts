@@ -1,0 +1,1 @@
+export { ReadOnlyScoreTable } from "./ReadOnlyScoreTable";

@@ -7,15 +7,10 @@ import * as SplashScreen from "expo-splash-screen";
 import { useColorScheme } from "nativewind";
 import { useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import "react-native-reanimated";
 
 import { useResolvedTheme } from "@/features/hooks/useResolvedTheme";
 
 export { ErrorBoundary } from "expo-router";
-
-export const unstable_settings = {
-  initialRouteName: "(tabs)",
-};
 
 SplashScreen.preventAutoHideAsync();
 

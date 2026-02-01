@@ -9,6 +9,7 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
+  StyleSheet,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -38,7 +39,7 @@ export default function GameScreen() {
 
   useEffect(() => {
     if (!game) {
-      router.replace("/(tabs)");
+      router.replace("/");
     }
   }, [game, router]);
 
@@ -92,7 +93,7 @@ export default function GameScreen() {
           text: "Terminer",
           onPress: () => {
             finishAndSaveCurrentGame();
-            router.replace("/(tabs)");
+            router.replace("/");
           },
         },
       ]
@@ -140,6 +141,8 @@ export default function GameScreen() {
     </View>
   );
 
+  const headerHeight = insets.top + 12 + 24 + 12 + 1;
+
   return (
     <View className="flex-1 bg-white dark:bg-black">
       <View
@@ -158,26 +161,49 @@ export default function GameScreen() {
       </View>
 
       {menuOpen && (
-        <View className="px-4 py-3 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <>
           <Pressable
-            onPress={() => setShowAddPlayer(true)}
-            className="py-3 active:opacity-70"
+            style={[StyleSheet.absoluteFill, styles.menuBackdrop]}
+            onPress={() => setMenuOpen(false)}
+          />
+          <View
+            style={[
+              styles.menuPopover,
+              {
+                top: headerHeight,
+              },
+            ]}
+            className="min-w-[160px] rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 py-1"
           >
-            <Text className="text-base text-black dark:text-white">
-              Ajouter un joueur
-            </Text>
-          </Pressable>
-          <Pressable onPress={handleRestartSame} className="py-3 active:opacity-70">
-            <Text className="text-base text-black dark:text-white">
-              Recommencer avec les mêmes joueurs
-            </Text>
-          </Pressable>
-          <Pressable onPress={handleFinish} className="py-3 active:opacity-70">
-            <Text className="text-base text-red-600 dark:text-red-400">
-              Terminer la partie
-            </Text>
-          </Pressable>
-        </View>
+            <Pressable
+              onPress={() => {
+                setShowAddPlayer(true);
+                setMenuOpen(false);
+              }}
+              className="px-3 py-2.5 active:opacity-70"
+            >
+              <Text className="text-sm text-black dark:text-white">
+                Ajouter un joueur
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={handleRestartSame}
+              className="px-3 py-2.5 active:opacity-70"
+            >
+              <Text className="text-sm text-black dark:text-white">
+                Recommencer
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={handleFinish}
+              className="px-3 py-2.5 active:opacity-70"
+            >
+              <Text className="text-sm text-red-600 dark:text-red-400">
+                Terminer la partie
+              </Text>
+            </Pressable>
+          </View>
+        </>
       )}
 
       {showAddPlayer && (
@@ -355,3 +381,25 @@ export default function GameScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  menuBackdrop: {
+    zIndex: 10,
+  },
+  menuPopover: {
+    position: "absolute",
+    right: 16,
+    zIndex: 11,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 6,
+      },
+    }),
+  },
+});

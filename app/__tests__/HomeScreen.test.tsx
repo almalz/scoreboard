@@ -11,13 +11,6 @@ vi.mock("react-native", () => ({
     <button type="button" onClick={onPress} {...p}>{children}</button>
   ),
 }));
-vi.mock("react-native-reanimated", () => ({
-  default: {
-    View: ({ children, ...p }: { children?: React.ReactNode }) => <div {...p}>{children}</div>,
-  },
-  FadeIn: { duration: () => ({ delay: () => ({ springify: () => {} }), springify: () => {} }) },
-  FadeInDown: { duration: () => ({ delay: () => ({ springify: () => {} }), springify: () => {} }) },
-}));
 
 const mockPush = vi.fn();
 vi.mock("expo-router", () => ({
@@ -27,7 +20,7 @@ vi.mock("expo-router", () => ({
   ),
 }));
 
-import HomeScreen from "../(tabs)/index";
+import HomeScreen from "../index";
 
 describe("HomeScreen", () => {
   beforeEach(() => {

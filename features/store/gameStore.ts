@@ -49,6 +49,13 @@ export const useGameStore = create<GameStore>()(
       ...initialState,
 
       createGame: (players: Player[]) => {
+        const { currentGame, currentScores, history } = get();
+        if (currentGame) {
+          const entry = toHistoryEntry(currentGame, currentScores);
+          set({
+            history: [...history, entry],
+          });
+        }
         const game = createGameFromGame(players);
         const scores = initScoresForPlayers(players.map((p) => p.id));
         set({ currentGame: game, currentScores: scores });
