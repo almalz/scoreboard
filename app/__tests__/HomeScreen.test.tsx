@@ -25,8 +25,9 @@ vi.mock("@expo/vector-icons/FontAwesome", () => ({
 }));
 
 const mockPush = vi.fn();
+const mockReplace = vi.fn();
 vi.mock("expo-router", () => ({
-  useRouter: () => ({ push: mockPush }),
+  useRouter: () => ({ push: mockPush, replace: mockReplace }),
   Link: ({ children, href }: { children: React.ReactNode; href: string }) => (
     <a href={href}>{children}</a>
   ),

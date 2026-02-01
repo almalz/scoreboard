@@ -3,8 +3,7 @@ import {
   NewGameForm,
   clampPlayerCount,
 } from "@/components/home";
-import { useGame } from "@/features/hooks/useGame";
-import { useGameActions } from "@/features/hooks/useGameActions";
+import { useLastGameHandlers } from "@/features/hooks/useLastGameHandlers";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Link, useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -17,33 +16,14 @@ export default function HomeScreen() {
   const iconColor = colorScheme === "dark" ? "#9ca3af" : "#6b7280";
   const router = useRouter();
   const [playerCount, setPlayerCount] = useState(2);
-  const { lastGame, lastGameFromHistory } = useGame();
-  const { restartWithSamePlayers, loadFromHistory, createGame } = useGameActions();
+  const { lastGame, handleResume, handleRestartSame, handleView } =
+    useLastGameHandlers();
 
   const setCount = (value: number) => setPlayerCount(clampPlayerCount(value));
 
   const startNewGame = () => {
     Keyboard.dismiss();
     router.push(`/setup?players=${playerCount}`);
-  };
-
-  const handleResume = () => {
-    if (lastGameFromHistory) {
-      loadFromHistory(lastGameFromHistory);
-      router.replace("/game");
-    } else {
-      router.push("/game");
-    }
-  };
-
-  const handleRestartSame = () => {
-    if (lastGameFromHistory) {
-      createGame(lastGameFromHistory.game.players);
-      router.replace("/game");
-    } else {
-      restartWithSamePlayers();
-      router.replace("/game");
-    }
   };
 
   return (
@@ -77,11 +57,7 @@ export default function HomeScreen() {
             game={lastGame}
             onResume={handleResume}
             onRestartSame={handleRestartSame}
-            onView={
-              lastGameFromHistory
-                ? () => router.push(`/history/${lastGameFromHistory.game.id}`)
-                : undefined
-            }
+            onView={handleView}
           />
         )}
 

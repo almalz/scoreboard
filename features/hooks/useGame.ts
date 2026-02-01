@@ -3,7 +3,7 @@ import { useGameStore } from '@/features/store/gameStore';
 import { getRoundCount, getTotalScore } from '@/features/domain/scores';
 import type { HistoryEntry, PlayerId } from '@/features/domain/types';
 
-/** Dernière partie affichée sur le home : partie en cours ou dernière partie terminée. */
+/** Dernière partie affichée sur le home (en cours ou dernière enregistrée). */
 export function useGame() {
   const store = useGameStore(
     useShallow((s) => ({
@@ -36,10 +36,10 @@ export function useGame() {
 
   return {
     game: store.currentGame,
-    /** Dernière partie (en cours ou dernière terminée) pour l’affichage home. */
+    /** Dernière partie (home) pour l’affichage home. */
     lastGame,
-    /** Entrée historique correspondante quand lastGame vient de l’historique (partie terminée). */
-    lastGameFromHistory: store.currentGame ? null : lastHistoryEntry,
+    /** Entrée historique quand lastGame vient de l’historique (null sinon). */
+    lastGameHistoryEntry: store.currentGame ? null : lastHistoryEntry,
     scores: store.currentScores,
     history: store.history,
     roundCount,
