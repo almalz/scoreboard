@@ -6,6 +6,7 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useColorScheme } from "nativewind";
 import { useEffect } from "react";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import "react-native-reanimated";
 
 import { useResolvedTheme } from "@/features/hooks/useResolvedTheme";
@@ -50,8 +51,10 @@ function RootLayoutNav() {
   }, [resolvedTheme, setColorScheme]);
 
   return (
-    <ThemeProvider value={resolvedTheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{ headerShown: false }} />
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <ThemeProvider value={resolvedTheme === "dark" ? DarkTheme : DefaultTheme}>
+        <Stack screenOptions={{ headerShown: false }} />
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }

@@ -1,6 +1,7 @@
 import { View, Text, Pressable, ScrollView } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useGame } from "@/features/hooks/useGame";
 import { useGameActions } from "@/features/hooks/useGameActions";
 import type { HistoryEntry } from "@/features/domain/types";
@@ -62,6 +63,7 @@ function HistoryItem({
 
 export default function HistoryScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { history } = useGame();
   const { loadFromHistory, createGame } = useGameActions();
 
@@ -81,7 +83,16 @@ export default function HistoryScreen() {
 
   return (
     <View className="flex-1 bg-white dark:bg-black">
-      <View className="px-4 py-6 border-b border-gray-200 dark:border-gray-700">
+      <View
+        className="px-4 py-4 border-b border-gray-200 dark:border-gray-700"
+        style={{ paddingTop: insets.top + 12 }}
+      >
+        <Pressable
+          onPress={() => router.back()}
+          className="self-start p-2 -ml-2 mb-2 active:opacity-70"
+        >
+          <Text className="text-blue-600 dark:text-blue-400 text-base">Retour</Text>
+        </Pressable>
         <Text className="text-2xl font-bold text-black dark:text-white">
           Historique
         </Text>

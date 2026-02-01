@@ -8,6 +8,7 @@ import {
   Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useGame } from "@/features/hooks/useGame";
 import { useGameActions } from "@/features/hooks/useGameActions";
 import { getRoundCount, getTotalScore } from "@/features/domain/scores";
@@ -15,6 +16,7 @@ import type { PlayerId } from "@/features/domain/types";
 
 export default function GameScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { game, scores, roundCount, totals } = useGame();
   const {
     addScore,
@@ -95,13 +97,13 @@ export default function GameScreen() {
 
   return (
     <View className="flex-1 bg-white dark:bg-black">
-      <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+      <View
+        className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700"
+        style={{ paddingTop: insets.top + 12 }}
+      >
         <Pressable onPress={() => router.back()} className="p-2 active:opacity-70">
           <Text className="text-blue-600 dark:text-blue-400 text-base">Retour</Text>
         </Pressable>
-        <Text className="text-lg font-semibold text-black dark:text-white">
-          Partie en cours
-        </Text>
         <Pressable
           onPress={() => setMenuOpen((o) => !o)}
           className="p-2 active:opacity-70"
