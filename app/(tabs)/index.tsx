@@ -1,31 +1,77 @@
-import { StyleSheet } from 'react-native';
+import React, { useState } from "react";
+import { View, Text, Pressable } from "react-native";
+import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
+import { Link, useRouter } from "expo-router";
 
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { Text, View } from '@/components/Themed';
+const MIN_PLAYERS = 2;
+const MAX_PLAYERS = 8;
 
-export default function TabOneScreen() {
+export default function HomeScreen() {
+  const router = useRouter();
+  const [playerCount, setPlayerCount] = useState(2);
+
+  const startNewGame = () => {
+    router.push(`/setup?players=${playerCount}`);
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/index.tsx" />
+    <View className="flex-1 bg-white dark:bg-black p-6 pt-12">
+      <Animated.View entering={FadeIn.duration(300)}>
+        <Text className="text-3xl font-bold text-black dark:text-white mb-2">
+          ScoreBoard
+        </Text>
+        <Text className="text-gray-600 dark:text-gray-400 mb-8">
+          Choisis le nombre de joueurs
+        </Text>
+      </Animated.View>
+
+      <Animated.View
+        entering={FadeInDown.duration(350).delay(80).springify()}
+        className="flex-row flex-wrap gap-3 mb-8"
+      >
+        {Array.from({ length: MAX_PLAYERS - MIN_PLAYERS + 1 }, (_, i) => {
+          const n = MIN_PLAYERS + i;
+          const isSelected = playerCount === n;
+          return (
+            <Pressable
+              key={n}
+              onPress={() => setPlayerCount(n)}
+              className={`w-14 h-14 rounded-2xl items-center justify-center ${
+                isSelected
+                  ? "bg-blue-600 dark:bg-blue-500"
+                  : "bg-gray-200 dark:bg-gray-700"
+              } active:opacity-80`}
+            >
+              <Text
+                className={`text-lg font-bold ${
+                  isSelected ? "text-white" : "text-black dark:text-white"
+                }`}
+              >
+                {n}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </Animated.View>
+
+      <Animated.View entering={FadeIn.duration(400).delay(150)}>
+        <Pressable
+          onPress={startNewGame}
+          className="bg-blue-600 dark:bg-blue-500 rounded-xl py-4 items-center active:opacity-80 mb-4"
+        >
+        <Text className="text-lg font-semibold text-white">
+          Nouvelle partie
+        </Text>
+      </Pressable>
+
+        <Link href="/settings" asChild>
+          <Pressable className="py-3 items-center active:opacity-70">
+            <Text className="text-base text-gray-600 dark:text-gray-400">
+              Paramètres
+            </Text>
+          </Pressable>
+        </Link>
+      </Animated.View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
-  },
-});
