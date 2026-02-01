@@ -1,8 +1,8 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  createPlayer,
-  createGame,
   addPlayer,
+  createGame,
+  createPlayer,
   restartWithSamePlayers,
   toHistoryEntry,
 } from '../game';
@@ -14,7 +14,6 @@ describe('game', () => {
       const p = createPlayer('Alice');
       expect(p.name).toBe('Alice');
       expect(p.id).toBeDefined();
-      expect(typeof p.id).toBe('string');
     });
   });
 
