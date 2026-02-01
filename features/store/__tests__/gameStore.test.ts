@@ -1,29 +1,12 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+jest.mock('@react-native-async-storage/async-storage');
 
-const storage: Record<string, string> = {};
-const mockAsyncStorage = {
-  getItem: vi.fn((key: string) => Promise.resolve(storage[key] ?? null)),
-  setItem: vi.fn((key: string, value: string) => {
-    storage[key] = value;
-    return Promise.resolve();
-  }),
-  removeItem: vi.fn((key: string) => {
-    delete storage[key];
-    return Promise.resolve();
-  }),
-};
-
-vi.mock('@react-native-async-storage/async-storage', () => ({
-  default: mockAsyncStorage,
-}));
-
-const { useGameStore } = await import('../gameStore');
-const { createPlayer } = await import('@/features/domain/game');
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useGameStore } from '../gameStore';
+import { createPlayer } from '@/features/domain/game';
 
 describe('gameStore', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    Object.keys(storage).forEach((k) => delete storage[k]);
+    (AsyncStorage as { __clear?: () => void }).__clear?.();
     useGameStore.setState({
       currentGame: null,
       currentScores: {},
