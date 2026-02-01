@@ -31,12 +31,12 @@ export default function HomeScreen() {
 
   const handleResume = (entry: HistoryEntry) => {
     loadFromHistory(entry);
-    router.replace("/game");
+    router.push("/game");
   };
 
   const handleRestartSame = (entry: HistoryEntry) => {
     createGame(entry.game.players);
-    router.replace("/game");
+    router.push("/game");
   };
 
   return (

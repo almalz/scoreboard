@@ -110,7 +110,13 @@ export const useGameStore = create<GameStore>()(
         const { currentGame, currentScores, history } = get();
         if (!currentGame) return;
         const entry = toHistoryEntry(currentGame, currentScores);
-        set({ history: [...history, entry], currentGame: null, currentScores: {} });
+        // Si la partie était reprise depuis l'historique, elle y est déjà : on met à jour l'entrée au lieu d'ajouter un doublon.
+        const existingIndex = history.findIndex((e) => e.game.id === currentGame.id);
+        const newHistory =
+          existingIndex >= 0
+            ? [...history.slice(0, existingIndex), entry, ...history.slice(existingIndex + 1)]
+            : [...history, entry];
+        set({ history: newHistory, currentGame: null, currentScores: {} });
       },
 
       setHasRehydrated: (value: boolean) => {

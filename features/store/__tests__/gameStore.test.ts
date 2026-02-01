@@ -141,5 +141,24 @@ describe('gameStore', () => {
       expect(state.history[0].scores[game.players[0].id]).toEqual([7]);
       expect(state.currentGame!.id).not.toBe(game.id);
     });
+
+    it('finishAndSaveCurrentGame after loadFromHistory updates existing entry (no duplicate)', () => {
+      const players = [createPlayer('Alice'), createPlayer('Bob')];
+      useGameStore.getState().createGame(players);
+      const game = useGameStore.getState().currentGame!;
+      useGameStore.getState().addScore(game.players[0].id, 5);
+      useGameStore.getState().finishAndSaveCurrentGame();
+      expect(useGameStore.getState().history).toHaveLength(1);
+
+      const entry = useGameStore.getState().history[0];
+      useGameStore.getState().loadFromHistory(entry);
+      useGameStore.getState().addScore(game.players[0].id, 3);
+      useGameStore.getState().finishAndSaveCurrentGame();
+
+      const state = useGameStore.getState();
+      expect(state.history).toHaveLength(1);
+      expect(state.history[0].game.id).toBe(game.id);
+      expect(state.history[0].scores[game.players[0].id]).toEqual([5, 3]);
+    });
   });
 });

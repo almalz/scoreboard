@@ -1,10 +1,10 @@
 import {
-  emptyScores,
-  initScoresForPlayers,
-  addScore,
-  getRoundCount,
-  getTotalScore,
-  mergeScoresWithNewPlayers,
+    addScore,
+    emptyScores,
+    getRoundCount,
+    getTotalScore,
+    initScoresForPlayers,
+    mergeScoresWithNewPlayers,
 } from '../scores';
 
 describe('scores', () => {

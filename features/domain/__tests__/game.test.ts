@@ -7,12 +7,20 @@ import {
 } from '../game';
 import type { Game, Player, Scores } from '../types';
 
+const UUID_V4_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 describe('game', () => {
   describe('createPlayer', () => {
     it('creates a player with id and name', () => {
       const p = createPlayer('Alice');
       expect(p.name).toBe('Alice');
       expect(p.id).toBeDefined();
+    });
+
+    it('generates a UUID v4 for player id', () => {
+      const p = createPlayer('Alice');
+      expect(p.id).toMatch(UUID_V4_REGEX);
     });
   });
 
@@ -28,6 +36,15 @@ describe('game', () => {
       expect(game.players).toHaveLength(2);
       expect(game.players[0].name).toBe('Alice');
       expect(game.players[1].name).toBe('Bob');
+    });
+
+    it('generates a UUID v4 for game id', () => {
+      const players: Player[] = [
+        { id: 'a', name: 'Alice' },
+        { id: 'b', name: 'Bob' },
+      ];
+      const game = createGame(players);
+      expect(game.id).toMatch(UUID_V4_REGEX);
     });
   });
 
@@ -56,6 +73,7 @@ describe('game', () => {
       };
       const next = restartWithSamePlayers(game);
       expect(next.id).not.toBe(game.id);
+      expect(next.id).toMatch(UUID_V4_REGEX);
       expect(next.startedAt).not.toBe(game.startedAt);
       expect(next.players).toHaveLength(2);
       expect(next.players[0].id).toBe('a');

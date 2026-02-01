@@ -1,7 +1,8 @@
+import { v4 as uuidv4 } from 'uuid';
 import type { Game, Player, HistoryEntry, Scores } from './types';
 
 function generateId(): string {
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+  return uuidv4();
 }
 
 export function createPlayer(name: string): Player {

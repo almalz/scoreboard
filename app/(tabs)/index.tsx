@@ -45,7 +45,7 @@ export default function HomeScreen() {
 
   const handleRestartSame = () => {
     restartWithSamePlayers();
-    router.replace("/game");
+    router.push("/game");
   };
 
   return (
