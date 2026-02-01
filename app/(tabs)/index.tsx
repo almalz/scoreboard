@@ -124,13 +124,6 @@ export default function HomeScreen() {
           </Text>
         </Pressable>
 
-        <Link href="/history" asChild>
-          <Pressable className="py-3 items-center active:opacity-70">
-            <Text className="text-base text-gray-600 dark:text-gray-400">
-              Historique
-            </Text>
-          </Pressable>
-        </Link>
         <Link href="/settings" asChild>
           <Pressable className="py-3 items-center active:opacity-70">
             <Text className="text-base text-gray-600 dark:text-gray-400">
