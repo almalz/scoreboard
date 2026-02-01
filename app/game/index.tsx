@@ -6,13 +6,18 @@ import {
   Pressable,
   ScrollView,
   Alert,
+  Modal,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useGame } from "@/features/hooks/useGame";
 import { useGameActions } from "@/features/hooks/useGameActions";
-import { getRoundCount, getTotalScore } from "@/features/domain/scores";
 import type { PlayerId } from "@/features/domain/types";
+
+const COL_WIDTH = 72;
+const INDEX_WIDTH = 36;
 
 export default function GameScreen() {
   const router = useRouter();
@@ -25,7 +30,8 @@ export default function GameScreen() {
     finishAndSaveCurrentGame,
   } = useGameActions();
 
-  const [roundInputs, setRoundInputs] = useState<Record<PlayerId, string>>({});
+  const [addScoreTarget, setAddScoreTarget] = useState<PlayerId | null>(null);
+  const [addScoreInput, setAddScoreInput] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [addPlayerName, setAddPlayerName] = useState("");
   const [showAddPlayer, setShowAddPlayer] = useState(false);
@@ -40,27 +46,26 @@ export default function GameScreen() {
     return null;
   }
 
-  const clearRoundInputs = () =>
-    setRoundInputs(
-      Object.fromEntries(game.players.map((p) => [p.id, ""]))
-    );
-
-  const handleAddRound = () => {
-    const entries = game.players.map((p) => {
-      const raw = roundInputs[p.id] ?? "";
-      const num = parseInt(raw, 10);
-      return [p.id, Number.isNaN(num) ? null : num] as const;
-    });
-    if (entries.some(([, n]) => n === null)) return;
-    entries.forEach(([playerId, points]) => addScore(playerId, points!));
-    clearRoundInputs();
+  const openAddScoreDialog = (playerId: PlayerId) => {
+    setAddScoreTarget(playerId);
+    setAddScoreInput("");
   };
 
-  const canAddRound = game.players.every((p) => {
-    const raw = roundInputs[p.id] ?? "";
-    const num = parseInt(raw, 10);
-    return raw.trim() !== "" && !Number.isNaN(num);
-  });
+  const closeAddScoreDialog = () => {
+    setAddScoreTarget(null);
+    setAddScoreInput("");
+  };
+
+  const submitAddScore = () => {
+    if (!addScoreTarget) return;
+    const num = parseInt(addScoreInput.trim(), 10);
+    if (addScoreInput.trim() === "" || Number.isNaN(num)) return;
+    addScore(addScoreTarget, num);
+    closeAddScoreDialog();
+  };
+
+  const canSubmitAddScore =
+    addScoreInput.trim() !== "" && !Number.isNaN(parseInt(addScoreInput.trim(), 10));
 
   const handleAddPlayer = () => {
     const name = addPlayerName.trim();
@@ -74,7 +79,6 @@ export default function GameScreen() {
   const handleRestartSame = () => {
     setMenuOpen(false);
     restartWithSamePlayers();
-    clearRoundInputs();
   };
 
   const handleFinish = () => {
@@ -94,6 +98,47 @@ export default function GameScreen() {
       ]
     );
   };
+
+  const TableRow = ({
+    children,
+    isHeader = false,
+  }: {
+    children: React.ReactNode;
+    isHeader?: boolean;
+  }) => (
+    <View
+      className={`flex-row items-center ${
+        isHeader
+          ? "border-b-2 border-gray-300 dark:border-gray-600 pb-2 mb-1"
+          : "border-b border-gray-100 dark:border-gray-800 py-2"
+      }`}
+    >
+      {children}
+    </View>
+  );
+
+  const TableCell = ({
+    children,
+    width,
+    align = "center",
+  }: {
+    children: React.ReactNode;
+    width: number;
+    align?: "left" | "center" | "right";
+  }) => (
+    <View
+      style={{ width }}
+      className={`${
+        align === "right"
+          ? "items-end"
+          : align === "left"
+            ? "items-start"
+            : "items-center"
+      } justify-center`}
+    >
+      {children}
+    </View>
+  );
 
   return (
     <View className="flex-1 bg-white dark:bg-black">
@@ -164,80 +209,149 @@ export default function GameScreen() {
         </View>
       )}
 
-      <ScrollView className="flex-1 p-4" horizontal>
-        <View>
-          <View className="flex-row border-b-2 border-gray-300 dark:border-gray-600 pb-2 mb-2">
-            <Text className="w-24 text-sm font-semibold text-gray-600 dark:text-gray-400">
-              Joueur
-            </Text>
-            {Array.from({ length: roundCount }, (_, i) => (
-              <Text
-                key={i}
-                className="w-12 text-center text-sm font-semibold text-gray-600 dark:text-gray-400"
-              >
-                R{i + 1}
-              </Text>
-            ))}
-            <Text className="w-14 text-right text-sm font-semibold text-gray-600 dark:text-gray-400">
-              Total
-            </Text>
-          </View>
-          {game.players.map((player) => {
-            const playerScores = scores[player.id] ?? [];
-            const total = totals[player.id] ?? 0;
-            return (
-              <View
-                key={player.id}
-                className="flex-row border-b border-gray-100 dark:border-gray-800 py-2 items-center"
-              >
-                <Text
-                  className="w-24 text-black dark:text-white font-medium"
-                  numberOfLines={1}
-                >
-                  {player.name}
-                </Text>
-                {Array.from({ length: roundCount }, (_, i) => (
-                  <Text
-                    key={i}
-                    className="w-12 text-center text-black dark:text-white"
-                  >
-                    {playerScores[i] ?? "—"}
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ padding: 16 }}
+        showsVerticalScrollIndicator={true}
+      >
+        <ScrollView horizontal showsHorizontalScrollIndicator={true}>
+            <View>
+              {/* Header: # | Player1 | Player2 | ... */}
+              <TableRow isHeader>
+                <TableCell width={INDEX_WIDTH} align="center">
+                  <Text className="text-sm font-semibold text-gray-600 dark:text-gray-400">
+                    Tours
                   </Text>
+                </TableCell>
+                {game.players.map((player) => (
+                  <TableCell key={player.id} width={COL_WIDTH}>
+                    <Text
+                      className="text-sm font-semibold text-gray-600 dark:text-gray-400"
+                      numberOfLines={1}
+                      style={{ maxWidth: COL_WIDTH - 8 }}
+                    >
+                      {player.name}
+                    </Text>
+                  </TableCell>
                 ))}
-                <Text className="w-14 text-right font-semibold text-black dark:text-white">
-                  {total}
-                </Text>
-              </View>
-            );
-          })}
+              </TableRow>
 
-          <View className="flex-row py-4 mt-2 border-t border-gray-200 dark:border-gray-700 items-center">
-            <Text className="w-24 text-sm text-gray-500 dark:text-gray-500">
-              Nouveau round
-            </Text>
-            {game.players.map((p) => (
+              {/* Score rows + add button on last line per player */}
+              {Array.from(
+                { length: Math.max(1, roundCount + 1) },
+                (_, i) => (
+                  <TableRow key={i}>
+                    <TableCell width={INDEX_WIDTH} align="center">
+                      <Text className="text-sm text-gray-500 dark:text-gray-400">
+                        {i + 1}
+                      </Text>
+                    </TableCell>
+                    {game.players.map((player) => {
+                      const playerScores = scores[player.id] ?? [];
+                      const scoreCount = playerScores.length;
+                      if (scoreCount === i) {
+                        return (
+                          <TableCell key={player.id} width={COL_WIDTH}>
+                            <Pressable
+                              onPress={() => openAddScoreDialog(player.id)}
+                              className="w-8 h-8 rounded-full bg-blue-600 items-center justify-center active:opacity-80"
+                            >
+                              <Text className="text-white font-bold text-lg">+</Text>
+                            </Pressable>
+                          </TableCell>
+                        );
+                      }
+                      if (scoreCount > i) {
+                        return (
+                          <TableCell key={player.id} width={COL_WIDTH}>
+                            <Text className="text-base text-black dark:text-white">
+                              {playerScores[i]}
+                            </Text>
+                          </TableCell>
+                        );
+                      }
+                      return (
+                        <TableCell key={player.id} width={COL_WIDTH}>
+                          <Text className="text-base text-gray-400 dark:text-gray-500">
+                            —
+                          </Text>
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                )
+              )}
+
+              {/* Total row */}
+              <TableRow>
+                <TableCell width={INDEX_WIDTH} align="center">
+                  <Text className="text-sm font-semibold text-gray-600 dark:text-gray-400">
+                    Total
+                  </Text>
+                </TableCell>
+                {game.players.map((player) => (
+                  <TableCell key={player.id} width={COL_WIDTH}>
+                    <Text className="text-base font-semibold text-black dark:text-white">
+                      {totals[player.id] ?? 0}
+                    </Text>
+                  </TableCell>
+                ))}
+              </TableRow>
+            </View>
+        </ScrollView>
+      </ScrollView>
+
+      <Modal
+        visible={addScoreTarget !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={closeAddScoreDialog}
+      >
+        <Pressable
+          className="flex-1 bg-black/50 justify-center items-center px-6"
+          onPress={closeAddScoreDialog}
+        >
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            className="w-full max-w-xs"
+          >
+            <Pressable
+              className="bg-white dark:bg-gray-900 rounded-xl p-5"
+              onPress={(e) => e.stopPropagation()}
+            >
+              <Text className="text-lg font-semibold text-black dark:text-white mb-3">
+                Score pour {game.players.find((p) => p.id === addScoreTarget)?.name ?? ""}
+              </Text>
               <TextInput
-                key={p.id}
-                className="w-12 text-center border border-gray-300 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-900 text-black dark:text-white mx-0.5 py-1"
+                className="rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-black dark:text-white text-xl px-4 py-3 mb-4"
                 placeholder="0"
                 placeholderTextColor="#9ca3af"
                 keyboardType="number-pad"
-                value={roundInputs[p.id] ?? ""}
-                onChangeText={(v) =>
-                  setRoundInputs((prev) => ({ ...prev, [p.id]: v }))
-                }
+                value={addScoreInput}
+                onChangeText={setAddScoreInput}
+                autoFocus
               />
-            ))}
-            <Pressable
-              onPress={handleAddRound}
-              disabled={!canAddRound}
-              className="ml-2 bg-blue-600 px-3 py-2 rounded-lg active:opacity-80 disabled:opacity-50"
-            >
-              <Text className="text-white text-sm font-medium">+</Text>
+              <View className="flex-row gap-2">
+                <Pressable
+                  onPress={closeAddScoreDialog}
+                  className="flex-1 py-3 rounded-lg border border-gray-300 dark:border-gray-600 active:opacity-70"
+                >
+                  <Text className="text-center text-gray-700 dark:text-gray-300">
+                    Annuler
+                  </Text>
+                </Pressable>
+                <Pressable
+                  onPress={submitAddScore}
+                  disabled={!canSubmitAddScore}
+                  className="flex-1 py-3 rounded-lg bg-blue-600 active:opacity-80 disabled:opacity-50"
+                >
+                  <Text className="text-center text-white font-medium">Valider</Text>
+                </Pressable>
+              </View>
             </Pressable>
-          </View>
-        </View>
-      </ScrollView>
+          </KeyboardAvoidingView>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
