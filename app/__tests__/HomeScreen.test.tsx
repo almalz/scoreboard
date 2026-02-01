@@ -5,6 +5,8 @@ import React from "react";
 vi.mock("react-native", () => ({
   View: ({ children, ...p }: { children?: React.ReactNode }) => <div {...p}>{children}</div>,
   Text: ({ children, ...p }: { children?: React.ReactNode }) => <span {...p}>{children}</span>,
+  TextInput: (p: Record<string, unknown>) => <input {...p} />,
+  Keyboard: { dismiss: vi.fn() },
   Pressable: ({ children, onPress, ...p }: { children?: React.ReactNode; onPress?: () => void }) => (
     <button type="button" onClick={onPress} {...p}>{children}</button>
   ),
@@ -37,12 +39,15 @@ describe("HomeScreen", () => {
     expect(screen.getByText("ScoreBoard")).toBeTruthy();
     expect(screen.getByText("Choisis le nombre de joueurs")).toBeTruthy();
     expect(screen.getByText("Nouvelle partie")).toBeTruthy();
+    expect(screen.getByText("Historique")).toBeTruthy();
     expect(screen.getByText("Paramètres")).toBeTruthy();
   });
 
-  it("renders number buttons 2 to 8", () => {
+  it("renders number input with +/- controls", () => {
     render(<HomeScreen />);
-    expect(screen.getAllByText("2").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("8").length).toBeGreaterThan(0);
+    const inputs = screen.getAllByDisplayValue("2");
+    expect(inputs.length).toBeGreaterThan(0);
+    expect(screen.getAllByText("−").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("+").length).toBeGreaterThan(0);
   });
 });
