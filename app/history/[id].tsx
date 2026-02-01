@@ -2,6 +2,7 @@ import { useLayoutEffect } from "react";
 import { useLocalSearchParams, useRouter, useNavigation } from "expo-router";
 import { View, Text, Pressable } from "react-native";
 import { useGame } from "@/features/hooks/useGame";
+import { useGameActions } from "@/features/hooks/useGameActions";
 import { ReadOnlyScoreTable } from "@/components/scores";
 import { formatDate } from "@/utils/date";
 
@@ -10,6 +11,7 @@ export default function HistoryDetailScreen() {
   const navigation = useNavigation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { history } = useGame();
+  const { loadFromHistory, createGame } = useGameActions();
   const entry = history.find((e) => e.game.id === id);
 
   useLayoutEffect(() => {
@@ -38,6 +40,16 @@ export default function HistoryDetailScreen() {
 
   const { game, scores } = entry;
 
+  const handleResume = () => {
+    loadFromHistory(entry);
+    router.replace("/game");
+  };
+
+  const handleRestart = () => {
+    createGame(game.players);
+    router.replace("/game");
+  };
+
   return (
     <View className="flex-1 bg-white dark:bg-black">
       <View className="flex-1 p-6 pt-4">
@@ -48,6 +60,22 @@ export default function HistoryDetailScreen() {
           {formatDate(game.startedAt)} — lecture seule
         </Text>
         <ReadOnlyScoreTable game={game} scores={scores} />
+      </View>
+      <View className="flex-row gap-3 p-6 pt-0">
+        <Pressable
+          onPress={handleResume}
+          className="flex-1 py-3 rounded-lg bg-blue-600 dark:bg-blue-500 items-center justify-center active:opacity-80"
+        >
+          <Text className="text-sm font-medium text-white">Reprendre</Text>
+        </Pressable>
+        <Pressable
+          onPress={handleRestart}
+          className="flex-1 py-3 rounded-lg border border-gray-400 dark:border-gray-500 items-center justify-center active:opacity-80"
+        >
+          <Text className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            Recommencer
+          </Text>
+        </Pressable>
       </View>
     </View>
   );

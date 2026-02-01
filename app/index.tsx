@@ -75,9 +75,13 @@ export default function HomeScreen() {
         {lastGame && (
           <LastGameCard
             game={lastGame}
-            isFinished={!!lastGameFromHistory}
             onResume={handleResume}
             onRestartSame={handleRestartSame}
+            onView={
+              lastGameFromHistory
+                ? () => router.push(`/history/${lastGameFromHistory.game.id}`)
+                : undefined
+            }
           />
         )}
 

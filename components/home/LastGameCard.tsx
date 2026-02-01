@@ -5,13 +5,13 @@ import { formatDateTime } from "@/utils/date";
 
 interface LastGameCardProps {
   game: Game;
-  /** True si la partie est terminée (affichée depuis l’historique). */
-  isFinished?: boolean;
+  /** Optionnel : navigue vers la vue lecture seule. */
+  onView?: () => void;
   onResume: () => void;
   onRestartSame: () => void;
 }
 
-export function LastGameCard({ game, isFinished, onResume, onRestartSame }: LastGameCardProps) {
+export function LastGameCard({ game, onResume, onRestartSame, onView }: LastGameCardProps) {
   return (
     <View className="rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 gap-3 p-5">
       <View className="gap-1">
@@ -25,21 +25,31 @@ export function LastGameCard({ game, isFinished, onResume, onRestartSame }: Last
           {formatDateTime(game.startedAt)}
         </Text>
       </View>
-      <View className="flex-row gap-3">
+      <View className="flex-row gap-3 flex-wrap">
+        {onView && (
+          <Pressable
+            onPress={onView}
+            className="flex-1 min-w-[80px] py-3 rounded-lg bg-gray-200 dark:bg-gray-700 items-center justify-center active:opacity-80"
+          >
+            <Text className="text-sm font-medium text-black dark:text-white">
+              Voir
+            </Text>
+          </Pressable>
+        )}
         <Pressable
           onPress={onResume}
-          className="flex-1 py-3 rounded-lg bg-blue-600 items-center justify-center active:opacity-80"
+          className="flex-1 min-w-[80px] py-3 rounded-lg bg-blue-600 items-center justify-center active:opacity-80"
         >
           <Text className="text-sm font-medium text-white">
-            {isFinished ? "Voir" : "Reprendre"}
+            Reprendre
           </Text>
         </Pressable>
         <Pressable
           onPress={onRestartSame}
-          className="flex-1 py-3 rounded-lg border border-gray-300 dark:border-gray-600 items-center justify-center active:opacity-70"
+          className="flex-1 min-w-[80px] py-3 rounded-lg border border-gray-300 dark:border-gray-600 items-center justify-center active:opacity-70"
         >
           <Text className="text-sm font-medium text-black dark:text-white">
-            Relancer
+            Recommencer
           </Text>
         </Pressable>
       </View>

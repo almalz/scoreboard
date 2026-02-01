@@ -1,4 +1,3 @@
-import "../global.css";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
@@ -7,6 +6,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { useColorScheme } from "nativewind";
 import { useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import "../global.css";
 
 import { useResolvedTheme } from "@/features/hooks/useResolvedTheme";
 
@@ -74,7 +74,7 @@ function RootLayoutNav() {
             options={{ title: "Partie" }}
           />
           <Stack.Screen
-            name="history"
+            name="history/index"
             options={{ title: "Historique" }}
           />
           <Stack.Screen
