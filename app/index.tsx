@@ -25,10 +25,6 @@ export default function HomeScreen() {
     router.push(`/setup?players=${playerCount}`);
   };
 
-  const handleView = (entry: HistoryEntry) => {
-    router.push(`/history/${entry.game.id}`);
-  };
-
   const handleResume = (entry: HistoryEntry) => {
     loadFromHistory(entry);
     router.push("/game");
@@ -78,7 +74,6 @@ export default function HomeScreen() {
               <HistoryItem
                 key={entry.game.id}
                 entry={entry}
-                onView={() => handleView(entry)}
                 onResume={() => handleResume(entry)}
                 onRestartSame={() => handleRestartSame(entry)}
               />

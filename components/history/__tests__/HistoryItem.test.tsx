@@ -17,35 +17,18 @@ const mockEntry: HistoryEntry = {
 
 describe("HistoryItem", () => {
   it("renders player names and buttons", () => {
-    const onView = jest.fn();
     const onResume = jest.fn();
     const onRestartSame = jest.fn();
     render(
       <HistoryItem
         entry={mockEntry}
-        onView={onView}
         onResume={onResume}
         onRestartSame={onRestartSame}
       />
     );
     expect(screen.getByText("Alice, Bob")).toBeTruthy();
-    expect(screen.getByText("Voir")).toBeTruthy();
     expect(screen.getByText("Reprendre")).toBeTruthy();
     expect(screen.getByText("Recommencer")).toBeTruthy();
-  });
-
-  it("calls onView when Voir pressed", () => {
-    const onView = jest.fn();
-    render(
-      <HistoryItem
-        entry={mockEntry}
-        onView={onView}
-        onResume={jest.fn()}
-        onRestartSame={jest.fn()}
-      />
-    );
-    fireEvent.press(screen.getByText("Voir"));
-    expect(onView).toHaveBeenCalledTimes(1);
   });
 
   it("calls onResume when Reprendre pressed", () => {
@@ -53,7 +36,6 @@ describe("HistoryItem", () => {
     render(
       <HistoryItem
         entry={mockEntry}
-        onView={jest.fn()}
         onResume={onResume}
         onRestartSame={jest.fn()}
       />
@@ -67,7 +49,6 @@ describe("HistoryItem", () => {
     render(
       <HistoryItem
         entry={mockEntry}
-        onView={jest.fn()}
         onResume={jest.fn()}
         onRestartSame={onRestartSame}
       />

@@ -74,10 +74,6 @@ function RootLayoutNav() {
             options={{ title: "Partie" }}
           />
           <Stack.Screen
-            name="history/[id]"
-            options={{ title: "Détail" }}
-          />
-          <Stack.Screen
             name="settings"
             options={{ title: "Paramètres" }}
           />

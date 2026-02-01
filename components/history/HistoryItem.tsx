@@ -5,14 +5,12 @@ import { formatDate } from "@/utils/date";
 
 interface HistoryItemProps {
   entry: HistoryEntry;
-  onView: () => void;
   onResume: () => void;
   onRestartSame: () => void;
 }
 
 export function HistoryItem({
   entry,
-  onView,
   onResume,
   onRestartSame,
 }: HistoryItemProps) {
@@ -35,12 +33,6 @@ export function HistoryItem({
         {dateLabel}
       </Text>
       <View className="flex-row gap-2 flex-wrap">
-        <Pressable
-          onPress={onView}
-          className="bg-gray-200 dark:bg-gray-700 px-4 py-2 rounded-lg active:opacity-80"
-        >
-          <Text className="text-black dark:text-white font-medium">Voir</Text>
-        </Pressable>
         <Pressable
           onPress={onResume}
           className="bg-blue-600 dark:bg-blue-500 px-4 py-2 rounded-lg active:opacity-80"

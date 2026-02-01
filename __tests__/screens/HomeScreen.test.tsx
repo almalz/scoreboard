@@ -39,13 +39,11 @@ describe("HomeScreen components", () => {
     render(
       <HistoryItem
         entry={mockEntry}
-        onView={jest.fn()}
         onResume={jest.fn()}
         onRestartSame={jest.fn()}
       />
     );
     expect(screen.getByText("Alice, Bob")).toBeTruthy();
-    expect(screen.getByText("Voir")).toBeTruthy();
     expect(screen.getByText("Reprendre")).toBeTruthy();
     expect(screen.getByText("Recommencer")).toBeTruthy();
   });
