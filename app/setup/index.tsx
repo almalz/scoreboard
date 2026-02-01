@@ -31,13 +31,10 @@ export default function SetupScreen() {
   return (
     <View className="flex-1 bg-white dark:bg-black">
       <ScrollView
-        className="flex-1 p-6 pt-12"
+        className="flex-1 p-6"
         contentContainerStyle={{ paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
       >
-        <Text className="text-2xl font-bold text-black dark:text-white mb-6">
-          Noms des joueurs
-        </Text>
         {names.map((name, i) => (
           <TextInput
             key={i}
@@ -50,22 +47,16 @@ export default function SetupScreen() {
           />
         ))}
         <Pressable
-        onPress={handleStart}
-        disabled={!canStart}
-        className={`mt-6 rounded-xl py-4 items-center ${
-          canStart
-            ? "bg-blue-600 active:opacity-80"
-            : "bg-gray-400 dark:bg-gray-600"
-        }`}
-      >
-        <Text className="text-lg font-semibold text-white">Lancer la partie</Text>
-      </Pressable>
-      <Pressable
-        onPress={() => router.back()}
-        className="mt-4 py-3 items-center active:opacity-70"
-      >
-        <Text className="text-base text-gray-600 dark:text-gray-400">Retour</Text>
-      </Pressable>
+          onPress={handleStart}
+          disabled={!canStart}
+          className={`mt-6 rounded-xl py-4 items-center ${
+            canStart
+              ? "bg-blue-600 active:opacity-80"
+              : "bg-gray-400 dark:bg-gray-600"
+          }`}
+        >
+          <Text className="text-lg font-semibold text-white">Lancer la partie</Text>
+        </Pressable>
       </ScrollView>
     </View>
   );

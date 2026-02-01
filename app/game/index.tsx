@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import {
   View,
   Text,
@@ -11,17 +11,20 @@ import {
   Platform,
   StyleSheet,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useNavigation } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useGame } from "@/features/hooks/useGame";
 import { useGameActions } from "@/features/hooks/useGameActions";
 import type { PlayerId } from "@/features/domain/types";
+
+const NATIVE_HEADER_HEIGHT = Platform.OS === "ios" ? 44 : 56;
 
 const COL_WIDTH = 72;
 const INDEX_WIDTH = 36;
 
 export default function GameScreen() {
   const router = useRouter();
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { game, scores, roundCount, totals } = useGame();
   const {
@@ -36,6 +39,19 @@ export default function GameScreen() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [addPlayerName, setAddPlayerName] = useState("");
   const [showAddPlayer, setShowAddPlayer] = useState(false);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Pressable
+          onPress={() => setMenuOpen((o) => !o)}
+          className="p-2 active:opacity-70"
+        >
+          <Text className="text-xl text-black dark:text-white">⋯</Text>
+        </Pressable>
+      ),
+    });
+  }, [navigation]);
 
   useEffect(() => {
     if (!game) {
@@ -141,25 +157,10 @@ export default function GameScreen() {
     </View>
   );
 
-  const headerHeight = insets.top + 12 + 24 + 12 + 1;
+  const headerHeight = insets.top + NATIVE_HEADER_HEIGHT;
 
   return (
     <View className="flex-1 bg-white dark:bg-black">
-      <View
-        className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700"
-        style={{ paddingTop: insets.top + 12 }}
-      >
-        <Pressable onPress={() => router.back()} className="p-2 active:opacity-70">
-          <Text className="text-blue-600 dark:text-blue-400 text-base">Retour</Text>
-        </Pressable>
-        <Pressable
-          onPress={() => setMenuOpen((o) => !o)}
-          className="p-2 active:opacity-70"
-        >
-          <Text className="text-xl text-black dark:text-white">⋯</Text>
-        </Pressable>
-      </View>
-
       {menuOpen && (
         <>
           <Pressable

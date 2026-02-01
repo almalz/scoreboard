@@ -45,10 +45,44 @@ function RootLayoutNav() {
     setColorScheme(resolvedTheme);
   }, [resolvedTheme, setColorScheme]);
 
+  const theme = resolvedTheme === "dark" ? DarkTheme : DefaultTheme;
   return (
     <SafeAreaProvider>
-      <ThemeProvider value={resolvedTheme === "dark" ? DarkTheme : DefaultTheme}>
-        <Stack screenOptions={{ headerShown: false }} />
+      <ThemeProvider value={theme}>
+        <Stack
+          screenOptions={{
+            headerShown: true,
+            headerBackTitle: "Retour",
+            headerStyle: {
+              backgroundColor: theme.dark ? "#000" : "#fff",
+            },
+            headerTintColor: theme.dark ? "#60a5fa" : "#2563eb",
+            headerTitleStyle: {
+              fontWeight: "bold",
+              fontSize: 18,
+            },
+            headerShadowVisible: false,
+          }}
+        >
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="setup"
+            options={{ title: "Noms des joueurs" }}
+          />
+          <Stack.Screen name="game" options={{ title: "Partie" }} />
+          <Stack.Screen
+            name="history"
+            options={{ title: "Historique" }}
+          />
+          <Stack.Screen
+            name="history/[id]"
+            options={{ title: "Détail" }}
+          />
+          <Stack.Screen
+            name="settings"
+            options={{ title: "Paramètres" }}
+          />
+        </Stack>
       </ThemeProvider>
     </SafeAreaProvider>
   );
