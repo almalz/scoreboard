@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { View, Text, TextInput, Pressable } from "react-native";
+import { View, Text, TextInput, Pressable, ScrollView } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { clampPlayerCount } from "@/components/home";
 import { useGameActions } from "@/features/hooks/useGameActions";
 import { createPlayer } from "@/features/domain/game";
 
@@ -8,7 +9,7 @@ export default function SetupScreen() {
   const params = useLocalSearchParams<{ players: string }>();
   const router = useRouter();
   const { createGame } = useGameActions();
-  const count = Math.min(8, Math.max(2, parseInt(params.players ?? "2", 10) || 2));
+  const count = clampPlayerCount(parseInt(params.players ?? "2", 10) || 2);
   const [names, setNames] = useState<string[]>(() => Array(count).fill(""));
 
   const updateName = (index: number, value: string) => {
@@ -28,22 +29,27 @@ export default function SetupScreen() {
   const canStart = names.every((n) => n.trim().length > 0);
 
   return (
-    <View className="flex-1 bg-white dark:bg-black p-6 pt-12">
-      <Text className="text-2xl font-bold text-black dark:text-white mb-6">
-        Noms des joueurs
-      </Text>
-      {names.map((name, i) => (
-        <TextInput
-          key={i}
-          className="mb-4 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-black dark:text-white px-4 py-3 text-lg"
-          placeholder={`Joueur ${i + 1}`}
-          placeholderTextColor="#9ca3af"
-          value={name}
-          onChangeText={(v) => updateName(i, v)}
-          autoCapitalize="words"
-        />
-      ))}
-      <Pressable
+    <View className="flex-1 bg-white dark:bg-black">
+      <ScrollView
+        className="flex-1 p-6 pt-12"
+        contentContainerStyle={{ paddingBottom: 24 }}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Text className="text-2xl font-bold text-black dark:text-white mb-6">
+          Noms des joueurs
+        </Text>
+        {names.map((name, i) => (
+          <TextInput
+            key={i}
+            className="mb-4 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-black dark:text-white px-4 py-3 text-lg"
+            placeholder={`Joueur ${i + 1}`}
+            placeholderTextColor="#9ca3af"
+            value={name}
+            onChangeText={(v) => updateName(i, v)}
+            autoCapitalize="words"
+          />
+        ))}
+        <Pressable
         onPress={handleStart}
         disabled={!canStart}
         className={`mt-6 rounded-xl py-4 items-center ${
@@ -60,6 +66,7 @@ export default function SetupScreen() {
       >
         <Text className="text-base text-gray-600 dark:text-gray-400">Retour</Text>
       </Pressable>
+      </ScrollView>
     </View>
   );
 }
