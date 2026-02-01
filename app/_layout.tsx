@@ -66,10 +66,13 @@ function RootLayoutNav() {
         >
           <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen
-            name="setup"
+            name="setup/index"
             options={{ title: "Noms des joueurs" }}
           />
-          <Stack.Screen name="game" options={{ title: "Partie" }} />
+          <Stack.Screen
+            name="game/index"
+            options={{ title: "Partie" }}
+          />
           <Stack.Screen
             name="history"
             options={{ title: "Historique" }}

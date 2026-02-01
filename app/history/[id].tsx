@@ -3,6 +3,7 @@ import { useLocalSearchParams, useRouter, useNavigation } from "expo-router";
 import { View, Text, Pressable } from "react-native";
 import { useGame } from "@/features/hooks/useGame";
 import { ReadOnlyScoreTable } from "@/components/scores";
+import { formatDate } from "@/utils/date";
 
 export default function HistoryDetailScreen() {
   const router = useRouter();
@@ -44,7 +45,7 @@ export default function HistoryDetailScreen() {
           {game.players.map((p) => p.name).join(", ")}
         </Text>
         <Text className="text-sm text-gray-500 dark:text-gray-500 mb-6">
-          {new Date(game.startedAt).toLocaleDateString()} — lecture seule
+          {formatDate(game.startedAt)} — lecture seule
         </Text>
         <ReadOnlyScoreTable game={game} scores={scores} />
       </View>

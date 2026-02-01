@@ -1,4 +1,4 @@
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, FlatList } from "react-native";
 import { useRouter } from "expo-router";
 import { useGame } from "@/features/hooks/useGame";
 import { useGameActions } from "@/features/hooks/useGameActions";
@@ -26,23 +26,24 @@ export default function HistoryScreen() {
 
   return (
     <View className="flex-1 bg-white dark:bg-black">
-      <ScrollView className="flex-1 p-4">
-        {history.length === 0 ? (
+      <FlatList
+        data={history}
+        keyExtractor={(entry) => entry.game.id}
+        contentContainerStyle={{ padding: 16, flexGrow: 1 }}
+        ListEmptyComponent={
           <Text className="text-gray-500 dark:text-gray-500 text-center py-12">
             Aucune partie enregistrée
           </Text>
-        ) : (
-          history.map((entry) => (
-            <HistoryItem
-              key={entry.game.id}
-              entry={entry}
-              onView={() => handleView(entry)}
-              onResume={() => handleResume(entry)}
-              onRestartSame={() => handleRestartSame(entry)}
-            />
-          ))
+        }
+        renderItem={({ item: entry }) => (
+          <HistoryItem
+            entry={entry}
+            onView={() => handleView(entry)}
+            onResume={() => handleResume(entry)}
+            onRestartSame={() => handleRestartSame(entry)}
+          />
         )}
-      </ScrollView>
+      />
     </View>
   );
 }

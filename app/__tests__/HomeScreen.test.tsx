@@ -12,6 +12,18 @@ vi.mock("react-native", () => ({
   ),
 }));
 
+vi.mock("react-native-safe-area-context", () => ({
+  SafeAreaView: ({ children, ...p }: { children?: React.ReactNode }) => <div {...p}>{children}</div>,
+}));
+
+vi.mock("nativewind", () => ({
+  useColorScheme: () => ({ colorScheme: "light" as const }),
+}));
+
+vi.mock("@expo/vector-icons/FontAwesome", () => ({
+  default: () => null,
+}));
+
 const mockPush = vi.fn();
 vi.mock("expo-router", () => ({
   useRouter: () => ({ push: mockPush }),

@@ -1,8 +1,9 @@
 import { useShallow } from 'zustand/react/shallow';
 import { useGameStore } from '@/features/store/gameStore';
 import { getRoundCount, getTotalScore } from '@/features/domain/scores';
-import type { PlayerId } from '@/features/domain/types';
+import type { HistoryEntry, PlayerId } from '@/features/domain/types';
 
+/** Dernière partie affichée sur le home : partie en cours ou dernière partie terminée. */
 export function useGame() {
   const store = useGameStore(
     useShallow((s) => ({
@@ -26,8 +27,19 @@ export function useGame() {
       )
     : {};
 
+  const lastHistoryEntry: HistoryEntry | null =
+    store.history.length > 0
+      ? store.history[store.history.length - 1]
+      : null;
+
+  const lastGame = store.currentGame ?? lastHistoryEntry?.game ?? null;
+
   return {
     game: store.currentGame,
+    /** Dernière partie (en cours ou dernière terminée) pour l’affichage home. */
+    lastGame,
+    /** Entrée historique correspondante quand lastGame vient de l’historique (partie terminée). */
+    lastGameFromHistory: store.currentGame ? null : lastHistoryEntry,
     scores: store.currentScores,
     history: store.history,
     roundCount,

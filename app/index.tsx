@@ -10,16 +10,15 @@ import { Link, useRouter } from "expo-router";
 import React, { useState } from "react";
 import { Keyboard, Pressable, Text, View } from "react-native";
 import { useColorScheme } from "nativewind";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
   const { colorScheme } = useColorScheme();
-  const insets = useSafeAreaInsets();
   const iconColor = colorScheme === "dark" ? "#9ca3af" : "#6b7280";
   const router = useRouter();
   const [playerCount, setPlayerCount] = useState(2);
-  const { game } = useGame();
-  const { restartWithSamePlayers } = useGameActions();
+  const { lastGame, lastGameFromHistory } = useGame();
+  const { restartWithSamePlayers, loadFromHistory, createGame } = useGameActions();
 
   const setCount = (value: number) => setPlayerCount(clampPlayerCount(value));
 
@@ -29,18 +28,28 @@ export default function HomeScreen() {
   };
 
   const handleResume = () => {
-    router.push("/game");
+    if (lastGameFromHistory) {
+      loadFromHistory(lastGameFromHistory);
+      router.replace("/game");
+    } else {
+      router.push("/game");
+    }
   };
 
   const handleRestartSame = () => {
-    restartWithSamePlayers();
-    router.replace("/game");
+    if (lastGameFromHistory) {
+      createGame(lastGameFromHistory.game.players);
+      router.replace("/game");
+    } else {
+      restartWithSamePlayers();
+      router.replace("/game");
+    }
   };
 
   return (
-    <View
-      className="flex-1 bg-white dark:bg-black gap-8"
-      style={{ paddingTop: insets.top, paddingHorizontal: 24, paddingBottom: insets.bottom + 24 }}
+    <SafeAreaView
+      className="flex-1 bg-white dark:bg-black gap-8 px-6 pb-6"
+      edges={["top", "left", "right", "bottom"]}
     >
       <View className="flex-row items-center justify-between gap-4">
         <Text className="text-3xl font-bold text-black dark:text-white">
@@ -63,9 +72,10 @@ export default function HomeScreen() {
           onSubmit={startNewGame}
         />
 
-        {game && (
+        {lastGame && (
           <LastGameCard
-            game={game}
+            game={lastGame}
+            isFinished={!!lastGameFromHistory}
             onResume={handleResume}
             onRestartSame={handleRestartSame}
           />
@@ -81,6 +91,6 @@ export default function HomeScreen() {
           </Link>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }

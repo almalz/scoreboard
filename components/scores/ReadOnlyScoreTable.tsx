@@ -1,7 +1,6 @@
-import React from "react";
-import { View, Text } from "react-native";
 import { getRoundCount, getTotalScore } from "@/features/domain/scores";
 import type { Game, Scores } from "@/features/domain/types";
+import { Text, View } from "react-native";
 
 interface ReadOnlyScoreTableProps {
   game: Game;
