@@ -3,7 +3,6 @@ import { useGameActions } from "@/features/hooks/useGameActions";
 import { Link, useRouter } from "expo-router";
 import React, { useState } from "react";
 import { Keyboard, Pressable, Text, TextInput, View } from "react-native";
-import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 
 const MIN_PLAYERS = 2;
 const MAX_PLAYERS = 20;
@@ -51,20 +50,17 @@ export default function HomeScreen() {
 
   return (
     <View className="flex-1 bg-white dark:bg-black p-6 pt-12">
-      <Animated.View entering={FadeIn.duration(300)}>
+      <View>
         <Text className="text-3xl font-bold text-black dark:text-white mb-2">
           ScoreBoard
         </Text>
         <Text className="text-gray-600 dark:text-gray-400 mb-8">
           Choisis le nombre de joueurs
         </Text>
-      </Animated.View>
+      </View>
 
       {game && (
-        <Animated.View
-          entering={FadeInDown.duration(300).springify()}
-          className="mb-8 p-4 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
-        >
+        <View className="mb-8 p-4 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
           <Text className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">
             Dernière partie
           </Text>
@@ -90,13 +86,10 @@ export default function HomeScreen() {
               </Text>
             </Pressable>
           </View>
-        </Animated.View>
+        </View>
       )}
 
-      <Animated.View
-        entering={FadeInDown.duration(350).delay(80).springify()}
-        className="flex-row items-center gap-3 mb-8"
-      >
+      <View className="flex-row items-center gap-3 mb-8">
         <Pressable
           onPress={() => setCount(playerCount - 1)}
           className="w-14 h-14 rounded-2xl bg-gray-200 dark:bg-gray-700 items-center justify-center active:opacity-80"
@@ -119,9 +112,9 @@ export default function HomeScreen() {
         >
           <Text className="text-2xl font-bold text-black dark:text-white">+</Text>
         </Pressable>
-      </Animated.View>
+      </View>
 
-      <Animated.View entering={FadeIn.duration(400).delay(150)}>
+      <View>
         <Pressable
           onPress={startNewGame}
           className="bg-blue-600 dark:bg-blue-500 rounded-xl py-4 items-center active:opacity-80 mb-4"
@@ -145,7 +138,7 @@ export default function HomeScreen() {
             </Text>
           </Pressable>
         </Link>
-      </Animated.View>
+      </View>
     </View>
   );
 }

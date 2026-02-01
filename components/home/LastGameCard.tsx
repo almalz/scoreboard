@@ -19,26 +19,28 @@ interface LastGameCardProps {
 
 export function LastGameCard({ game, onResume, onRestartSame }: LastGameCardProps) {
   return (
-    <View className="mb-8 p-4 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-      <Text className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">
-        Dernière partie
-      </Text>
-      <Text className="text-base text-black dark:text-white mb-1">
-        {game.players.map((p) => p.name).join(", ")}
-      </Text>
-      <Text className="text-xs text-gray-500 dark:text-gray-500 mb-3">
-        {formatDate(game.startedAt)}
-      </Text>
-      <View className="flex-row gap-2">
+    <View className="rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 gap-3 p-5">
+      <View className="gap-1">
+        <Text className="text-sm font-semibold text-gray-600 dark:text-gray-400">
+          Dernière partie
+        </Text>
+        <Text className="text-base text-black dark:text-white">
+          {game.players.map((p) => p.name).join(", ")}
+        </Text>
+        <Text className="text-xs text-gray-500 dark:text-gray-500">
+          {formatDate(game.startedAt)}
+        </Text>
+      </View>
+      <View className="flex-row gap-3">
         <Pressable
           onPress={onResume}
-          className="flex-1 py-2.5 rounded-lg bg-blue-600 items-center active:opacity-80"
+          className="flex-1 py-3 rounded-lg bg-blue-600 items-center justify-center active:opacity-80"
         >
           <Text className="text-sm font-medium text-white">Reprendre</Text>
         </Pressable>
         <Pressable
           onPress={onRestartSame}
-          className="flex-1 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 items-center active:opacity-70"
+          className="flex-1 py-3 rounded-lg border border-gray-300 dark:border-gray-600 items-center justify-center active:opacity-70"
         >
           <Text className="text-sm font-medium text-black dark:text-white">
             Relancer
