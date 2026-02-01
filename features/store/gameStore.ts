@@ -29,6 +29,7 @@ interface GameActions {
   addScore: (playerId: PlayerId, points: number) => void;
   restartWithSamePlayers: () => void;
   clearCurrentGame: () => void;
+  clearHistory: () => void;
   loadFromHistory: (entry: HistoryEntry) => void;
   finishAndSaveCurrentGame: () => void;
   setHasRehydrated: (value: boolean) => void;
@@ -95,6 +96,10 @@ export const useGameStore = create<GameStore>()(
 
       clearCurrentGame: () => {
         set({ currentGame: null, currentScores: {} });
+      },
+
+      clearHistory: () => {
+        set({ history: [] });
       },
 
       loadFromHistory: (entry: HistoryEntry) => {

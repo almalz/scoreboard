@@ -59,6 +59,15 @@ describe('gameStore', () => {
     expect(state.currentScores[state.currentGame!.players[1].id]).toEqual([]);
   });
 
+    it('clearHistory empties history', () => {
+    const players = [createPlayer('Alice'), createPlayer('Bob')];
+    useGameStore.getState().createGame(players);
+    useGameStore.getState().finishAndSaveCurrentGame();
+    expect(useGameStore.getState().history).toHaveLength(1);
+    useGameStore.getState().clearHistory();
+    expect(useGameStore.getState().history).toHaveLength(0);
+  });
+
   it('loadFromHistory restores currentGame and currentScores from entry', () => {
     const players = [createPlayer('Alice'), createPlayer('Bob')];
     useGameStore.getState().createGame(players);
