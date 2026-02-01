@@ -107,4 +107,56 @@ describe('gameStore', () => {
     expect(state.history[0].game.id).toBe(game.id);
     expect(state.history[0].scores[game.players[0].id]).toEqual([10]);
   });
+
+  describe('history grouping', () => {
+    it('createGame with current game in progress adds it to history then starts new game', () => {
+      const playersA = [createPlayer('Alice'), createPlayer('Bob')];
+      useGameStore.getState().createGame(playersA);
+      const gameA = useGameStore.getState().currentGame!;
+      useGameStore.getState().addScore(gameA.players[0].id, 5);
+      const historyBefore = useGameStore.getState().history.length;
+
+      const playersB = [createPlayer('Charlie'), createPlayer('Diana')];
+      useGameStore.getState().createGame(playersB);
+
+      const state = useGameStore.getState();
+      expect(state.history).toHaveLength(historyBefore + 1);
+      expect(state.history[state.history.length - 1].game.id).toBe(gameA.id);
+      expect(state.history[state.history.length - 1].scores[gameA.players[0].id]).toEqual([5]);
+      expect(state.currentGame).not.toBeNull();
+      expect(state.currentGame!.id).not.toBe(gameA.id);
+      expect(state.currentGame!.players[0].name).toBe('Charlie');
+    });
+
+    it('loadFromHistory does not modify history (resume = no new entry)', () => {
+      const players = [createPlayer('Alice'), createPlayer('Bob')];
+      useGameStore.getState().createGame(players);
+      const game = useGameStore.getState().currentGame!;
+      useGameStore.getState().addScore(game.players[0].id, 3);
+      const entry = {
+        game: useGameStore.getState().currentGame!,
+        scores: { ...useGameStore.getState().currentScores },
+        finishedAt: new Date().toISOString(),
+      };
+      useGameStore.getState().finishAndSaveCurrentGame();
+      expect(useGameStore.getState().history).toHaveLength(1);
+
+      useGameStore.getState().loadFromHistory(entry);
+      expect(useGameStore.getState().history).toHaveLength(1);
+      expect(useGameStore.getState().currentGame!.id).toBe(entry.game.id);
+    });
+
+    it('restartWithSamePlayers adds current game to history', () => {
+      const players = [createPlayer('Alice'), createPlayer('Bob')];
+      useGameStore.getState().createGame(players);
+      const game = useGameStore.getState().currentGame!;
+      useGameStore.getState().addScore(game.players[0].id, 7);
+      useGameStore.getState().restartWithSamePlayers();
+      const state = useGameStore.getState();
+      expect(state.history).toHaveLength(1);
+      expect(state.history[0].game.id).toBe(game.id);
+      expect(state.history[0].scores[game.players[0].id]).toEqual([7]);
+      expect(state.currentGame!.id).not.toBe(game.id);
+    });
+  });
 });

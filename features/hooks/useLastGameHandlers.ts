@@ -12,20 +12,17 @@ export function useLastGameHandlers() {
   const handleResume = useCallback(() => {
     if (lastGameHistoryEntry) {
       loadFromHistory(lastGameHistoryEntry);
-      router.replace("/game");
-    } else {
-      router.push("/game");
     }
+    router.push("/game");
   }, [lastGameHistoryEntry, loadFromHistory, router]);
 
   const handleRestartSame = useCallback(() => {
     if (lastGameHistoryEntry) {
       createGame(lastGameHistoryEntry.game.players);
-      router.replace("/game");
     } else {
       restartWithSamePlayers();
-      router.replace("/game");
     }
+    router.push("/game");
   }, [lastGameHistoryEntry, createGame, restartWithSamePlayers, router]);
 
   /** Voir la partie en lecture seule : historique ou vue courante. */
