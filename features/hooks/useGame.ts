@@ -34,6 +34,18 @@ export function useGame() {
 
   const lastGame = store.currentGame ?? lastHistoryEntry?.game ?? null;
 
+  /** Liste pour l'écran Historique : partie en cours en premier (si elle existe), puis tout l'historique, sans doublon. */
+  const historyForList: HistoryEntry[] = store.currentGame
+    ? [
+        {
+          game: store.currentGame,
+          scores: store.currentScores,
+          finishedAt: '',
+        },
+        ...store.history.filter((e) => e.game.id !== store.currentGame!.id),
+      ]
+    : store.history;
+
   return {
     game: store.currentGame,
     /** Dernière partie (home) pour l’affichage home. */
@@ -42,6 +54,8 @@ export function useGame() {
     lastGameHistoryEntry: store.currentGame ? null : lastHistoryEntry,
     scores: store.currentScores,
     history: store.history,
+    /** Historique pour l'écran liste : inclut la partie en cours en premier, puis toutes les parties passées. */
+    historyForList,
     roundCount,
     totals,
     isReady: store._hasRehydrated,

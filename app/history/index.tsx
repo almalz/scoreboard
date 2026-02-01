@@ -7,7 +7,7 @@ import type { HistoryEntry } from "@/features/domain/types";
 
 export default function HistoryScreen() {
   const router = useRouter();
-  const { history } = useGame();
+  const { historyForList } = useGame();
   const { loadFromHistory, createGame } = useGameActions();
 
   const handleView = (entry: HistoryEntry) => {
@@ -27,7 +27,7 @@ export default function HistoryScreen() {
   return (
     <View className="flex-1 bg-white dark:bg-black">
       <FlatList
-        data={history}
+        data={historyForList}
         keyExtractor={(entry) => entry.game.id}
         contentContainerStyle={{ padding: 16, flexGrow: 1 }}
         ListEmptyComponent={

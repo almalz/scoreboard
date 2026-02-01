@@ -17,7 +17,9 @@ export function HistoryItem({
   onRestartSame,
 }: HistoryItemProps) {
   const names = entry.game.players.map((p) => p.name).join(", ");
-  const date = formatDate(entry.game.startedAt);
+  const dateLabel = entry.finishedAt
+    ? formatDate(entry.game.startedAt)
+    : `${formatDate(entry.game.startedAt)} · En cours`;
 
   return (
     <View
@@ -30,7 +32,7 @@ export function HistoryItem({
         {names}
       </Text>
       <Text className="text-sm text-gray-500 dark:text-gray-500 mb-4">
-        {date}
+        {dateLabel}
       </Text>
       <View className="flex-row gap-2 flex-wrap">
         <Pressable
