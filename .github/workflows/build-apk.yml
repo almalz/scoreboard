@@ -38,5 +38,27 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
+      - name: Generate Android Keystore
+        run: |
+          keytool -genkeypair -v \
+            -keystore keystore.jks \
+            -alias key0 \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -storepass keystorepassword \
+            -keypass keystorepassword \
+            -dname "CN=Scoreboard,O=Unknown,C=US"
+          echo '{
+            "android": {
+              "keystore": {
+                "keystorePath": "keystore.jks",
+                "keystorePassword": "keystorepassword",
+                "keyAlias": "key0",
+                "keyPassword": "keystorepassword"
+              }
+            }
+          }' > credentials.json
+
       - name: Build APK
         run: eas build --platform android --profile preview --non-interactive
