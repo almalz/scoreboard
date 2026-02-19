@@ -15,6 +15,7 @@ const mockScores: Scores = { p1: [10, 5], p2: [3, 8] };
 const mockTotals = { p1: 15, p2: 11 };
 
 const mockAddScore = jest.fn();
+const mockUpdateScore = jest.fn();
 const mockAddPlayer = jest.fn();
 const mockRestartWithSamePlayers = jest.fn();
 const mockFinishAndSaveCurrentGame = jest.fn();
@@ -32,6 +33,7 @@ jest.mock("@/features/hooks/useGame", () => ({
 jest.mock("@/features/hooks/useGameActions", () => ({
   useGameActions: () => ({
     addScore: mockAddScore,
+    updateScore: mockUpdateScore,
     addPlayer: mockAddPlayer,
     restartWithSamePlayers: mockRestartWithSamePlayers,
     finishAndSaveCurrentGame: mockFinishAndSaveCurrentGame,
