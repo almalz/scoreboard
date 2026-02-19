@@ -14,12 +14,14 @@ const mockGame: Game = {
 
 const mockScores: Scores = { p1: [10, 5], p2: [3, 8] };
 const mockTotals = { p1: 15, p2: 11 };
+const mockRankings = { p1: 1, p2: 2 };
 
 const mockAddScore = jest.fn();
 const mockUpdateScore = jest.fn();
 const mockAddPlayer = jest.fn();
 const mockRestartWithSamePlayers = jest.fn();
 const mockFinishAndSaveCurrentGame = jest.fn();
+const mockToggleReverseScoring = jest.fn();
 const mockReplace = jest.fn();
 
 jest.mock("@/features/hooks/useGame", () => ({
@@ -28,6 +30,7 @@ jest.mock("@/features/hooks/useGame", () => ({
     scores: mockScores,
     roundCount: 2,
     totals: mockTotals,
+    rankings: mockRankings,
   }),
 }));
 
@@ -38,6 +41,7 @@ jest.mock("@/features/hooks/useGameActions", () => ({
     addPlayer: mockAddPlayer,
     restartWithSamePlayers: mockRestartWithSamePlayers,
     finishAndSaveCurrentGame: mockFinishAndSaveCurrentGame,
+    toggleReverseScoring: mockToggleReverseScoring,
   }),
 }));
 
