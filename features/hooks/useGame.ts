@@ -1,6 +1,6 @@
 import { useShallow } from 'zustand/react/shallow';
 import { useGameStore } from '@/features/store/gameStore';
-import { getRoundCount, getTotalScore } from '@/features/domain/scores';
+import { getRoundCount, getTotalScore, getRankings } from '@/features/domain/scores';
 import type { HistoryEntry, PlayerId } from '@/features/domain/types';
 
 /** Dernière partie affichée sur le home (en cours ou dernière enregistrée). */
@@ -27,6 +27,14 @@ export function useGame() {
       )
     : {};
 
+  const rankings: Record<PlayerId, number> = store.currentGame
+    ? getRankings(
+        store.currentScores,
+        store.currentGame.players.map((p) => p.id),
+        store.currentGame.reverseScoring ?? false
+      )
+    : {};
+
   const lastHistoryEntry: HistoryEntry | null =
     store.history.length > 0
       ? store.history[store.history.length - 1]
@@ -48,9 +56,9 @@ export function useGame() {
 
   return {
     game: store.currentGame,
-    /** Dernière partie (home) pour l’affichage home. */
+    /** Dernière partie (home) pour l'affichage home. */
     lastGame,
-    /** Entrée historique quand lastGame vient de l’historique (null sinon). */
+    /** Entrée historique quand lastGame vient de l'historique (null sinon). */
     lastGameHistoryEntry: store.currentGame ? null : lastHistoryEntry,
     scores: store.currentScores,
     history: store.history,
@@ -58,6 +66,8 @@ export function useGame() {
     historyForList,
     roundCount,
     totals,
+    /** Rang de chaque joueur (1 = meilleur). Tient compte de reverseScoring. */
+    rankings,
     isReady: store._hasRehydrated,
   };
 }

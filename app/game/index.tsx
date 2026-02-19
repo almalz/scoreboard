@@ -26,13 +26,14 @@ export default function GameScreen() {
   const router = useRouter();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
-  const { game, scores, roundCount, totals } = useGame();
+  const { game, scores, roundCount, totals, rankings } = useGame();
   const {
     addScore,
     updateScore,
     addPlayer,
     restartWithSamePlayers,
     finishAndSaveCurrentGame,
+    toggleReverseScoring,
   } = useGameActions();
 
   const [addScoreTarget, setAddScoreTarget] = useState<PlayerId | null>(null);
@@ -171,6 +172,32 @@ export default function GameScreen() {
     </View>
   );
 
+  const playerCount = game.players.length;
+  const maxRank = playerCount > 0 ? Math.max(...game.players.map((p) => rankings[p.id] ?? 1)) : 1;
+
+  const getMedalForPlayer = (playerId: string): string => {
+    const rank = rankings[playerId] ?? 1;
+    const isLast = rank === maxRank && playerCount > 1;
+    if (playerCount === 1) return '🥇';
+    if (playerCount === 2) {
+      if (rank === 1) return '🥇';
+      if (isLast) return '💩';
+      return '';
+    }
+    if (playerCount === 3) {
+      if (rank === 1) return '🥇';
+      if (rank === 2) return '🥈';
+      if (isLast) return '💩';
+      return '';
+    }
+    // 4+ joueurs
+    if (rank === 1) return '🥇';
+    if (rank === 2) return '🥈';
+    if (rank === 3) return '🥉';
+    if (isLast) return '💩';
+    return '';
+  };
+
   const headerHeight = insets.top + NATIVE_HEADER_HEIGHT;
 
   return (
@@ -199,6 +226,17 @@ export default function GameScreen() {
             >
               <Text className="text-sm text-black dark:text-white">
                 Ajouter un joueur
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => {
+                toggleReverseScoring();
+                setMenuOpen(false);
+              }}
+              className="px-3 py-2.5 active:opacity-70"
+            >
+              <Text className="text-sm text-black dark:text-white">
+                {game.reverseScoring ? '✓ ' : ''}Inverser classement
               </Text>
             </Pressable>
             <Pressable
@@ -343,6 +381,20 @@ export default function GameScreen() {
                   </TableCell>
                 ))}
               </TableRow>
+
+              {/* Medal row */}
+              {roundCount > 0 && (
+                <TableRow>
+                  <TableCell width={INDEX_WIDTH} align="center">
+                    <Text className="text-lg"> </Text>
+                  </TableCell>
+                  {game.players.map((player) => (
+                    <TableCell key={player.id} width={COL_WIDTH}>
+                      <Text className="text-2xl">{getMedalForPlayer(player.id)}</Text>
+                    </TableCell>
+                  ))}
+                </TableRow>
+              )}
             </View>
         </ScrollView>
       </ScrollView>

@@ -11,6 +11,8 @@ export interface Game {
   id: GameId;
   startedAt: string;
   players: Player[];
+  /** Si true, le joueur avec le moins de points est classé premier. */
+  reverseScoring?: boolean;
 }
 
 /** Scores for a game: per-player arrays of points (round = index). */
