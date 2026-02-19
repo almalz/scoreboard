@@ -29,6 +29,7 @@ export default function GameScreen() {
   const { game, scores, roundCount, totals } = useGame();
   const {
     addScore,
+    updateScore,
     addPlayer,
     restartWithSamePlayers,
     finishAndSaveCurrentGame,
@@ -36,6 +37,7 @@ export default function GameScreen() {
 
   const [addScoreTarget, setAddScoreTarget] = useState<PlayerId | null>(null);
   const [addScoreInput, setAddScoreInput] = useState("");
+  const [editRoundIndex, setEditRoundIndex] = useState<number | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [addPlayerName, setAddPlayerName] = useState("");
   const [showAddPlayer, setShowAddPlayer] = useState(false);
@@ -66,18 +68,30 @@ export default function GameScreen() {
   const openAddScoreDialog = (playerId: PlayerId) => {
     setAddScoreTarget(playerId);
     setAddScoreInput("");
+    setEditRoundIndex(null);
+  };
+
+  const openEditScoreDialog = (playerId: PlayerId, roundIndex: number, currentValue: number) => {
+    setAddScoreTarget(playerId);
+    setAddScoreInput(String(currentValue));
+    setEditRoundIndex(roundIndex);
   };
 
   const closeAddScoreDialog = () => {
     setAddScoreTarget(null);
     setAddScoreInput("");
+    setEditRoundIndex(null);
   };
 
   const submitAddScore = () => {
     if (!addScoreTarget) return;
     const num = parseInt(addScoreInput.trim(), 10);
     if (addScoreInput.trim() === "" || Number.isNaN(num)) return;
-    addScore(addScoreTarget, num);
+    if (editRoundIndex !== null) {
+      updateScore(addScoreTarget, editRoundIndex, num);
+    } else {
+      addScore(addScoreTarget, num);
+    }
     closeAddScoreDialog();
   };
 
@@ -291,9 +305,14 @@ export default function GameScreen() {
                       if (scoreCount > i) {
                         return (
                           <TableCell key={player.id} width={COL_WIDTH}>
-                            <Text className="text-base text-black dark:text-white">
-                              {playerScores[i]}
-                            </Text>
+                            <Pressable
+                              onPress={() => openEditScoreDialog(player.id, i, playerScores[i])}
+                              className="px-2 py-1 rounded active:bg-gray-200 dark:active:bg-gray-700"
+                            >
+                              <Text className="text-base text-black dark:text-white">
+                                {playerScores[i]}
+                              </Text>
+                            </Pressable>
                           </TableCell>
                         );
                       }
@@ -347,7 +366,7 @@ export default function GameScreen() {
               onPress={(e) => e.stopPropagation()}
             >
               <Text className="text-lg font-semibold text-black dark:text-white mb-3">
-                Score pour {game.players.find((p) => p.id === addScoreTarget)?.name ?? ""}
+                {editRoundIndex !== null ? "Modifier le score" : "Score"} pour {game.players.find((p) => p.id === addScoreTarget)?.name ?? ""}
               </Text>
               <TextInput
                 className="rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-black dark:text-white text-xl px-4 py-3 mb-4"

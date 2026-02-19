@@ -11,6 +11,7 @@ import {
 import {
   initScoresForPlayers,
   addScore as addScoreFromScores,
+  updateScore as updateScoreFromScores,
   mergeScoresWithNewPlayers,
 } from '@/features/domain/scores';
 
@@ -27,6 +28,7 @@ interface GameActions {
   createGame: (players: Player[]) => void;
   addPlayer: (name: string) => void;
   addScore: (playerId: PlayerId, points: number) => void;
+  updateScore: (playerId: PlayerId, roundIndex: number, points: number) => void;
   restartWithSamePlayers: () => void;
   clearCurrentGame: () => void;
   clearHistory: () => void;
@@ -78,6 +80,12 @@ export const useGameStore = create<GameStore>()(
       addScore: (playerId: PlayerId, points: number) => {
         const { currentScores } = get();
         const scores = addScoreFromScores(currentScores, playerId, points);
+        set({ currentScores: scores });
+      },
+
+      updateScore: (playerId: PlayerId, roundIndex: number, points: number) => {
+        const { currentScores } = get();
+        const scores = updateScoreFromScores(currentScores, playerId, roundIndex, points);
         set({ currentScores: scores });
       },
 

@@ -20,6 +20,15 @@ export function addScore(scores: Scores, playerId: PlayerId, points: number): Sc
   return next;
 }
 
+export function updateScore(scores: Scores, playerId: PlayerId, roundIndex: number, points: number): Scores {
+  const next = { ...scores };
+  const list = [...(next[playerId] ?? [])];
+  if (roundIndex < 0 || roundIndex >= list.length) return scores;
+  list[roundIndex] = points;
+  next[playerId] = list;
+  return next;
+}
+
 export function getRoundCount(scores: Scores): number {
   const lengths = Object.values(scores).map((arr) => arr.length);
   return lengths.length === 0 ? 0 : Math.max(...lengths);

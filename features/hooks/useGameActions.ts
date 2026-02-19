@@ -5,6 +5,7 @@ export function useGameActions() {
   const createGame = useGameStore((s) => s.createGame);
   const addPlayer = useGameStore((s) => s.addPlayer);
   const addScore = useGameStore((s) => s.addScore);
+  const updateScore = useGameStore((s) => s.updateScore);
   const restartWithSamePlayers = useGameStore((s) => s.restartWithSamePlayers);
   const clearCurrentGame = useGameStore((s) => s.clearCurrentGame);
   const loadFromHistory = useGameStore((s) => s.loadFromHistory);
@@ -14,6 +15,7 @@ export function useGameActions() {
     createGame: (players: Player[]) => createGame(players),
     addPlayer: (name: string) => addPlayer(name),
     addScore: (playerId: string, points: number) => addScore(playerId, points),
+    updateScore: (playerId: string, roundIndex: number, points: number) => updateScore(playerId, roundIndex, points),
     restartWithSamePlayers: () => restartWithSamePlayers(),
     clearCurrentGame: () => clearCurrentGame(),
     loadFromHistory: (entry: HistoryEntry) => loadFromHistory(entry),
