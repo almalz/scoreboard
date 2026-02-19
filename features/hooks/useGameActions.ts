@@ -10,6 +10,7 @@ export function useGameActions() {
   const clearCurrentGame = useGameStore((s) => s.clearCurrentGame);
   const loadFromHistory = useGameStore((s) => s.loadFromHistory);
   const finishAndSaveCurrentGame = useGameStore((s) => s.finishAndSaveCurrentGame);
+  const toggleReverseScoring = useGameStore((s) => s.toggleReverseScoring);
 
   return {
     createGame: (players: Player[]) => createGame(players),
@@ -20,5 +21,6 @@ export function useGameActions() {
     clearCurrentGame: () => clearCurrentGame(),
     loadFromHistory: (entry: HistoryEntry) => loadFromHistory(entry),
     finishAndSaveCurrentGame: () => finishAndSaveCurrentGame(),
+    toggleReverseScoring: () => toggleReverseScoring(),
   };
 }

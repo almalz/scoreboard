@@ -35,6 +35,7 @@ interface GameActions {
   loadFromHistory: (entry: HistoryEntry) => void;
   finishAndSaveCurrentGame: () => void;
   setHasRehydrated: (value: boolean) => void;
+  toggleReverseScoring: () => void;
 }
 
 type GameStore = GameState & GameActions;
@@ -134,6 +135,17 @@ export const useGameStore = create<GameStore>()(
 
       setHasRehydrated: (value: boolean) => {
         set({ _hasRehydrated: value });
+      },
+
+      toggleReverseScoring: () => {
+        const { currentGame } = get();
+        if (!currentGame) return;
+        set({
+          currentGame: {
+            ...currentGame,
+            reverseScoring: !currentGame.reverseScoring,
+          },
+        });
       },
     }),
     {

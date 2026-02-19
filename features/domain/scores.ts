@@ -39,6 +39,35 @@ export function getTotalScore(scores: Scores, playerId: PlayerId): number {
   return list.reduce((sum, n) => sum + n, 0);
 }
 
+/**
+ * Retourne un Record<PlayerId, number> avec le rang de chaque joueur (1 = meilleur).
+ * Si reverseScoring = true, le joueur avec le moins de points est classé premier.
+ * Les ex-aequo partagent le même rang.
+ */
+export function getRankings(
+  scores: Scores,
+  playerIds: PlayerId[],
+  reverseScoring = false
+): Record<PlayerId, number> {
+  const totals = Object.fromEntries(
+    playerIds.map((id) => [id, getTotalScore(scores, id)])
+  );
+
+  const sorted = [...playerIds].sort((a, b) =>
+    reverseScoring ? totals[a] - totals[b] : totals[b] - totals[a]
+  );
+
+  const rankings: Record<PlayerId, number> = {};
+  let currentRank = 1;
+  for (let i = 0; i < sorted.length; i++) {
+    if (i > 0 && totals[sorted[i]] !== totals[sorted[i - 1]]) {
+      currentRank = i + 1;
+    }
+    rankings[sorted[i]] = currentRank;
+  }
+  return rankings;
+}
+
 export function mergeScoresWithNewPlayers(
   scores: Scores,
   existingPlayerIds: PlayerId[],
