@@ -363,7 +363,8 @@ export default function GameScreen() {
                       {i < roundCount ? (
                         <Pressable
                           onLongPress={() => setRoundMenuIndex(i)}
-                          className="active:opacity-70"
+                          hitSlop={8}
+                          className="px-2 py-1 -mx-2 -my-1 active:opacity-70"
                           testID={`round-long-press-${i}`}
                         >
                           <Text className="text-sm text-gray-500 dark:text-gray-400">
