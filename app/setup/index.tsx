@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
+import { useState, useRef, useEffect } from "react";
+import { Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform, Keyboard } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { clampPlayerCount } from "@/components/home";
 import { useGameActions } from "@/features/hooks/useGameActions";
@@ -28,12 +28,22 @@ export default function SetupScreen() {
 
   const canStart = names.every((n) => n.trim().length > 0);
 
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    const sub = Keyboard.addListener("keyboardDidShow", () => {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    });
+    return () => sub.remove();
+  }, []);
+
   return (
     <KeyboardAvoidingView
       className="flex-1 bg-white dark:bg-black"
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView
+        ref={scrollViewRef}
         className="flex-1 p-6"
         contentContainerStyle={{ paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
