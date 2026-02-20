@@ -100,6 +100,45 @@ export default function GameScreen() {
     closeAddScoreDialog();
   };
 
+  // Round index targeted by the current add-score dialog (null when editing)
+  const currentAddRound =
+    addScoreTarget !== null && editRoundIndex === null
+      ? (scores[addScoreTarget] ?? []).length
+      : null;
+
+  // True when at least one OTHER player still has no score in the current add round
+  const showNextPlayerButton =
+    editRoundIndex === null &&
+    addScoreTarget !== null &&
+    currentAddRound !== null &&
+    game.players.some(
+      (p) => p.id !== addScoreTarget && (scores[p.id] ?? []).length <= currentAddRound
+    );
+
+  const submitAndNextPlayer = () => {
+    if (!addScoreTarget || editRoundIndex !== null) return;
+    const num = parseInt(addScoreInput.trim(), 10);
+    if (addScoreInput.trim() === "" || Number.isNaN(num)) return;
+
+    // Capture the target round before the score is added
+    const targetRound = (scores[addScoreTarget] ?? []).length;
+
+    addScore(addScoreTarget, num);
+
+    // Find the next player (in game order) without a score for targetRound
+    const currentIndex = game.players.findIndex((p) => p.id === addScoreTarget);
+    const total = game.players.length;
+    for (let i = 1; i < total; i++) {
+      const next = game.players[(currentIndex + i) % total];
+      if ((scores[next.id] ?? []).length <= targetRound) {
+        openAddScoreDialog(next.id);
+        return;
+      }
+    }
+
+    closeAddScoreDialog();
+  };
+
   const canSubmitAddScore =
     addScoreInput.trim() !== "" && !Number.isNaN(parseInt(addScoreInput.trim(), 10));
 
@@ -520,6 +559,17 @@ export default function GameScreen() {
                 onChangeText={setAddScoreInput}
                 autoFocus
               />
+              {showNextPlayerButton && (
+                <Pressable
+                  onPress={submitAndNextPlayer}
+                  disabled={!canSubmitAddScore}
+                  className="py-3 rounded-lg bg-green-600 active:opacity-80 disabled:opacity-50 mb-2"
+                >
+                  <Text className="text-center text-white font-medium">
+                    Suivant →
+                  </Text>
+                </Pressable>
+              )}
               <View className="flex-row gap-2">
                 <Pressable
                   onPress={closeAddScoreDialog}
