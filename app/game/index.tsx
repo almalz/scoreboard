@@ -559,6 +559,17 @@ export default function GameScreen() {
                 onChangeText={setAddScoreInput}
                 autoFocus
               />
+              {showNextPlayerButton && (
+                <Pressable
+                  onPress={submitAndNextPlayer}
+                  disabled={!canSubmitAddScore}
+                  className="mb-2 py-3 rounded-lg bg-green-600 active:opacity-80 disabled:opacity-50"
+                >
+                  <Text className="text-center text-white font-medium">
+                    Valider et passer au suivant
+                  </Text>
+                </Pressable>
+              )}
               <View className="flex-row gap-2">
                 <Pressable
                   onPress={closeAddScoreDialog}
@@ -576,17 +587,6 @@ export default function GameScreen() {
                   <Text className="text-center text-white font-medium">Valider</Text>
                 </Pressable>
               </View>
-              {showNextPlayerButton && (
-                <Pressable
-                  onPress={submitAndNextPlayer}
-                  disabled={!canSubmitAddScore}
-                  className="mt-2 py-3 rounded-lg bg-green-600 active:opacity-80 disabled:opacity-50"
-                >
-                  <Text className="text-center text-white font-medium">
-                    Valider et passer au suivant
-                  </Text>
-                </Pressable>
-              )}
             </Pressable>
           </KeyboardAvoidingView>
         </Pressable>
