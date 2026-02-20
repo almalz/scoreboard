@@ -566,7 +566,7 @@ export default function GameScreen() {
                   className="py-3 rounded-lg bg-green-600 active:opacity-80 disabled:opacity-50 mb-2"
                 >
                   <Text className="text-center text-white font-medium">
-                    Suivant →
+                    Valider et passer au suivant
                   </Text>
                 </Pressable>
               )}
