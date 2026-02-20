@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, TextInput, Pressable, ScrollView } from "react-native";
+import { View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { clampPlayerCount } from "@/components/home";
 import { useGameActions } from "@/features/hooks/useGameActions";
@@ -29,7 +29,10 @@ export default function SetupScreen() {
   const canStart = names.every((n) => n.trim().length > 0);
 
   return (
-    <View className="flex-1 bg-white dark:bg-black">
+    <KeyboardAvoidingView
+      className="flex-1 bg-white dark:bg-black"
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
       <ScrollView
         className="flex-1 p-6"
         contentContainerStyle={{ paddingBottom: 24 }}
@@ -58,6 +61,6 @@ export default function SetupScreen() {
           <Text className="text-lg font-semibold text-white">Lancer la partie</Text>
         </Pressable>
       </ScrollView>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
