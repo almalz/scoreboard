@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ScoreBoard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0a0a0a;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px;
+      overflow: hidden;
+    }
+
+    #waiting {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      color: #555;
+    }
+    #waiting .logo { font-size: 56px; }
+    #waiting .label { font-size: 22px; letter-spacing: 0.05em; }
+
+    #scoreboard {
+      display: none;
+      width: 100%;
+      max-width: 1100px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      font-size: 26px;
+      font-weight: 700;
+      color: #aaa;
+      padding: 12px 16px;
+      text-align: center;
+      border-bottom: 2px solid #333;
+    }
+    th.name-col { text-align: left; color: #fff; }
+
+    td {
+      padding: 14px 16px;
+      text-align: center;
+      font-size: 28px;
+      border-bottom: 1px solid #1e1e1e;
+    }
+    td.name-col { text-align: left; }
+
+    .player-name {
+      font-size: 30px;
+      font-weight: 600;
+    }
+    .medal { font-size: 32px; margin-right: 8px; }
+
+    .total-row td {
+      font-size: 32px;
+      font-weight: 700;
+      color: #fff;
+      border-bottom: none;
+      padding-top: 18px;
+    }
+    .total-row .total-label { color: #aaa; font-weight: 600; }
+
+    .rank-1 .player-name { color: #ffd700; }
+    .rank-2 .player-name { color: #c0c0c0; }
+    .rank-3 .player-name { color: #cd7f32; }
+    .rank-last .player-name { color: #888; }
+  </style>
+</head>
+<body>
+  <div id="waiting">
+    <div class="logo">🎲</div>
+    <div class="label">ScoreBoard</div>
+  </div>
+
+  <div id="scoreboard"></div>
+
+  <script src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
+  <script>
+    const NAMESPACE = 'urn:x-cast:com.scoreboard.game';
+
+    const context = cast.framework.CastReceiverContext.getInstance();
+
+    context.addCustomMessageListener(NAMESPACE, (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        renderScoreboard(data);
+      } catch (e) {
+        console.error('Failed to parse game state', e);
+      }
+    });
+
+    function getMedal(rank, totalPlayers) {
+      const isLast = rank === totalPlayers && totalPlayers > 1;
+      if (totalPlayers === 1) return '🥇';
+      if (totalPlayers === 2) return rank === 1 ? '🥇' : '💩';
+      if (totalPlayers === 3) {
+        if (rank === 1) return '🥇';
+        if (rank === 2) return '🥈';
+        return '💩';
+      }
+      if (rank === 1) return '🥇';
+      if (rank === 2) return '🥈';
+      if (rank === 3) return '🥉';
+      if (isLast) return '💩';
+      return '';
+    }
+
+    function getRankClass(rank, totalPlayers) {
+      const isLast = rank === totalPlayers && totalPlayers > 1;
+      if (rank === 1) return 'rank-1';
+      if (rank === 2) return 'rank-2';
+      if (rank === 3) return 'rank-3';
+      if (isLast) return 'rank-last';
+      return '';
+    }
+
+    function renderScoreboard({ players, scores, totals, rankings }) {
+      document.getElementById('waiting').style.display = 'none';
+      const board = document.getElementById('scoreboard');
+      board.style.display = 'block';
+
+      const n = players.length;
+      const roundCount = Math.max(0, ...players.map(p => (scores[p.id] || []).length));
+
+      let html = '<table>';
+
+      // Header
+      html += '<tr>';
+      html += '<th class="name-col">Joueur</th>';
+      for (let i = 0; i < roundCount; i++) {
+        html += `<th>T${i + 1}</th>`;
+      }
+      html += '<th>Total</th>';
+      html += '</tr>';
+
+      // Player rows
+      for (const player of players) {
+        const rank = rankings[player.id] ?? 1;
+        const rankClass = getRankClass(rank, n);
+        const medal = getMedal(rank, n);
+        const playerScores = scores[player.id] || [];
+        const total = totals[player.id] ?? 0;
+
+        html += `<tr class="${rankClass}">`;
+        html += `<td class="name-col"><span class="medal">${medal}</span><span class="player-name">${escapeHtml(player.name)}</span></td>`;
+        for (let i = 0; i < roundCount; i++) {
+          const val = playerScores[i] !== undefined ? playerScores[i] : '—';
+          html += `<td>${val}</td>`;
+        }
+        html += `<td><strong>${total}</strong></td>`;
+        html += '</tr>';
+      }
+
+      // Total row label
+      html += '<tr class="total-row">';
+      html += '<td class="name-col total-label">Total</td>';
+      for (let i = 0; i < roundCount; i++) html += '<td></td>';
+      html += '<td></td>';
+      html += '</tr>';
+
+      html += '</table>';
+      board.innerHTML = html;
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    context.start();
+  </script>
+</body>
+</html>

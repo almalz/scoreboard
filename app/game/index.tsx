@@ -15,6 +15,7 @@ import { useRouter, useNavigation } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useGame } from "@/features/hooks/useGame";
 import { useGameActions } from "@/features/hooks/useGameActions";
+import { useCast } from "@/features/hooks/useCast";
 import { getPlayersWithMissingScores } from "@/features/domain/scores";
 import type { PlayerId } from "@/features/domain/types";
 
@@ -38,6 +39,8 @@ export default function GameScreen() {
     finishAndSaveCurrentGame,
     toggleReverseScoring,
   } = useGameActions();
+
+  const { openCastMenu } = useCast();
 
   const [addScoreTarget, setAddScoreTarget] = useState<PlayerId | null>(null);
   const [addScoreInput, setAddScoreInput] = useState("");
@@ -295,6 +298,19 @@ export default function GameScreen() {
             ]}
             className="min-w-[160px] rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 py-1"
           >
+            {Platform.OS !== 'web' && (
+              <Pressable
+                onPress={() => {
+                  setMenuOpen(false);
+                  openCastMenu();
+                }}
+                className="px-3 py-2.5 active:opacity-70"
+              >
+                <Text className="text-sm text-black dark:text-white">
+                  Diffuser sur TV
+                </Text>
+              </Pressable>
+            )}
             <Pressable
               onPress={() => {
                 setShowAddPlayer(true);
