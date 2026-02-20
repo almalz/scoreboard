@@ -15,6 +15,7 @@ import { useRouter, useNavigation } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useGame } from "@/features/hooks/useGame";
 import { useGameActions } from "@/features/hooks/useGameActions";
+import { getPlayersWithMissingScores } from "@/features/domain/scores";
 import type { PlayerId } from "@/features/domain/types";
 
 const NATIVE_HEADER_HEIGHT = Platform.OS === "ios" ? 44 : 56;
@@ -30,6 +31,8 @@ export default function GameScreen() {
   const {
     addScore,
     updateScore,
+    deleteRound,
+    completeRound,
     addPlayer,
     restartWithSamePlayers,
     finishAndSaveCurrentGame,
@@ -42,6 +45,7 @@ export default function GameScreen() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [addPlayerName, setAddPlayerName] = useState("");
   const [showAddPlayer, setShowAddPlayer] = useState(false);
+  const [roundMenuIndex, setRoundMenuIndex] = useState<number | null>(null);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -126,6 +130,41 @@ export default function GameScreen() {
             finishAndSaveCurrentGame();
             router.replace("/");
           },
+        },
+      ]
+    );
+  };
+
+  const handleDeleteRound = (roundIndex: number) => {
+    setRoundMenuIndex(null);
+    Alert.alert(
+      `Supprimer le tour ${roundIndex + 1}`,
+      "Tous les scores de ce tour seront supprimés. Cette action est irréversible.",
+      [
+        { text: "Annuler", style: "cancel" },
+        {
+          text: "Supprimer",
+          style: "destructive",
+          onPress: () => deleteRound(roundIndex),
+        },
+      ]
+    );
+  };
+
+  const handleCompleteRound = (roundIndex: number) => {
+    const missing = getPlayersWithMissingScores(scores, game.players.map((p) => p.id), roundIndex);
+    const missingNames = missing
+      .map((id) => game.players.find((p) => p.id === id)?.name)
+      .filter(Boolean);
+    setRoundMenuIndex(null);
+    Alert.alert(
+      `Terminer le tour ${roundIndex + 1}`,
+      `Les scores manquants seront mis à 0 pour : ${missingNames.join(", ")}.`,
+      [
+        { text: "Annuler", style: "cancel" },
+        {
+          text: "Confirmer",
+          onPress: () => completeRound(roundIndex),
         },
       ]
     );
@@ -321,9 +360,21 @@ export default function GameScreen() {
                 (_, i) => (
                   <TableRow key={i}>
                     <TableCell width={INDEX_WIDTH} align="center">
-                      <Text className="text-sm text-gray-500 dark:text-gray-400">
-                        {i + 1}
-                      </Text>
+                      {i < roundCount ? (
+                        <Pressable
+                          onLongPress={() => setRoundMenuIndex(i)}
+                          className="active:opacity-70"
+                          testID={`round-long-press-${i}`}
+                        >
+                          <Text className="text-sm text-gray-500 dark:text-gray-400">
+                            {i + 1}
+                          </Text>
+                        </Pressable>
+                      ) : (
+                        <Text className="text-sm text-gray-500 dark:text-gray-400">
+                          {i + 1}
+                        </Text>
+                      )}
                     </TableCell>
                     {game.players.map((player) => {
                       const playerScores = scores[player.id] ?? [];
@@ -398,6 +449,45 @@ export default function GameScreen() {
             </View>
         </ScrollView>
       </ScrollView>
+
+      <Modal
+        visible={roundMenuIndex !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setRoundMenuIndex(null)}
+      >
+        <Pressable
+          className="flex-1 bg-black/50 justify-center items-center px-6"
+          onPress={() => setRoundMenuIndex(null)}
+        >
+          <Pressable
+            className="bg-white dark:bg-gray-900 rounded-xl p-4 w-full max-w-xs"
+            onPress={(e) => e.stopPropagation()}
+          >
+            <Text className="text-lg font-semibold text-black dark:text-white mb-3">
+              Tour {roundMenuIndex !== null ? roundMenuIndex + 1 : ""}
+            </Text>
+            <Pressable
+              onPress={() => roundMenuIndex !== null && handleDeleteRound(roundMenuIndex)}
+              className="py-3 px-2 rounded-lg active:bg-gray-100 dark:active:bg-gray-800"
+              testID="round-menu-delete"
+            >
+              <Text className="text-base text-red-600 dark:text-red-400">
+                Supprimer le tour
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => roundMenuIndex !== null && handleCompleteRound(roundMenuIndex)}
+              className="py-3 px-2 rounded-lg active:bg-gray-100 dark:active:bg-gray-800"
+              testID="round-menu-complete"
+            >
+              <Text className="text-base text-black dark:text-white">
+                Terminer le tour
+              </Text>
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
 
       <Modal
         visible={addScoreTarget !== null}

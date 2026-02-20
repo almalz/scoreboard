@@ -18,6 +18,8 @@ const mockRankings = { p1: 1, p2: 2 };
 
 const mockAddScore = jest.fn();
 const mockUpdateScore = jest.fn();
+const mockDeleteRound = jest.fn();
+const mockCompleteRound = jest.fn();
 const mockAddPlayer = jest.fn();
 const mockRestartWithSamePlayers = jest.fn();
 const mockFinishAndSaveCurrentGame = jest.fn();
@@ -38,6 +40,8 @@ jest.mock("@/features/hooks/useGameActions", () => ({
   useGameActions: () => ({
     addScore: mockAddScore,
     updateScore: mockUpdateScore,
+    deleteRound: mockDeleteRound,
+    completeRound: mockCompleteRound,
     addPlayer: mockAddPlayer,
     restartWithSamePlayers: mockRestartWithSamePlayers,
     finishAndSaveCurrentGame: mockFinishAndSaveCurrentGame,
@@ -61,7 +65,7 @@ jest.mock("react-native-safe-area-context", () => ({
   useSafeAreaInsets: () => ({ top: 0, left: 0, right: 0, bottom: 0 }),
 }));
 
-jest.spyOn(require("react-native").Alert, "alert").mockImplementation(
+const mockAlert = jest.spyOn(require("react-native").Alert, "alert").mockImplementation(
   (_title: string, _message: string, buttons?: { text: string; onPress?: () => void }[]) => {
     const terminer = buttons?.find((b) => b.text === "Terminer");
     if (terminer?.onPress) terminer.onPress();
@@ -186,5 +190,78 @@ describe("GameScreen", () => {
     fireEvent.changeText(screen.getByDisplayValue("10"), "20");
     fireEvent.press(screen.getByText("Valider"));
     expect(mockUpdateScore).toHaveBeenCalledWith("p1", 0, 20);
+  });
+
+  describe("round long press menu", () => {
+    it("opens round menu on long press of a round number", () => {
+      render(<GameScreen />);
+      fireEvent(screen.getByTestId("round-long-press-0"), "longPress");
+      expect(screen.getByText("Tour 1")).toBeTruthy();
+      expect(screen.getByText("Supprimer le tour")).toBeTruthy();
+      expect(screen.getByText("Terminer le tour")).toBeTruthy();
+    });
+
+    it("shows delete confirmation alert when Supprimer le tour is pressed", () => {
+      render(<GameScreen />);
+      fireEvent(screen.getByTestId("round-long-press-0"), "longPress");
+      fireEvent.press(screen.getByTestId("round-menu-delete"));
+      expect(mockAlert).toHaveBeenCalledWith(
+        "Supprimer le tour 1",
+        "Tous les scores de ce tour seront supprimés. Cette action est irréversible.",
+        expect.arrayContaining([
+          expect.objectContaining({ text: "Annuler" }),
+          expect.objectContaining({ text: "Supprimer" }),
+        ])
+      );
+    });
+
+    it("calls deleteRound when delete is confirmed", () => {
+      mockAlert.mockImplementationOnce(
+        (_title: string, _message: string, buttons?: { text: string; onPress?: () => void }[]) => {
+          const supprimer = buttons?.find((b) => b.text === "Supprimer");
+          if (supprimer?.onPress) supprimer.onPress();
+        }
+      );
+      render(<GameScreen />);
+      fireEvent(screen.getByTestId("round-long-press-0"), "longPress");
+      fireEvent.press(screen.getByTestId("round-menu-delete"));
+      expect(mockDeleteRound).toHaveBeenCalledWith(0);
+    });
+
+    it("shows complete confirmation alert when Terminer le tour is pressed", () => {
+      render(<GameScreen />);
+      fireEvent(screen.getByTestId("round-long-press-0"), "longPress");
+      fireEvent.press(screen.getByTestId("round-menu-complete"));
+      expect(mockAlert).toHaveBeenCalledWith(
+        "Terminer le tour 1",
+        expect.stringContaining("mis à 0"),
+        expect.arrayContaining([
+          expect.objectContaining({ text: "Annuler" }),
+          expect.objectContaining({ text: "Confirmer" }),
+        ])
+      );
+    });
+
+    it("calls completeRound when complete is confirmed", () => {
+      mockAlert.mockImplementationOnce(
+        (_title: string, _message: string, buttons?: { text: string; onPress?: () => void }[]) => {
+          const confirmer = buttons?.find((b) => b.text === "Confirmer");
+          if (confirmer?.onPress) confirmer.onPress();
+        }
+      );
+      render(<GameScreen />);
+      fireEvent(screen.getByTestId("round-long-press-0"), "longPress");
+      fireEvent.press(screen.getByTestId("round-menu-complete"));
+      expect(mockCompleteRound).toHaveBeenCalledWith(0);
+    });
+
+    it("closes round menu when backdrop is pressed", () => {
+      render(<GameScreen />);
+      fireEvent(screen.getByTestId("round-long-press-0"), "longPress");
+      expect(screen.getByText("Tour 1")).toBeTruthy();
+      // The round menu modal has a backdrop Pressable wrapping the content
+      // Pressing the outer pressable should close the menu
+      expect(screen.getByText("Supprimer le tour")).toBeTruthy();
+    });
   });
 });

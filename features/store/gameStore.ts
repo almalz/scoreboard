@@ -12,6 +12,8 @@ import {
   initScoresForPlayers,
   addScore as addScoreFromScores,
   updateScore as updateScoreFromScores,
+  deleteRound as deleteRoundFromScores,
+  completeRound as completeRoundFromScores,
   mergeScoresWithNewPlayers,
 } from '@/features/domain/scores';
 
@@ -29,6 +31,8 @@ interface GameActions {
   addPlayer: (name: string) => void;
   addScore: (playerId: PlayerId, points: number) => void;
   updateScore: (playerId: PlayerId, roundIndex: number, points: number) => void;
+  deleteRound: (roundIndex: number) => void;
+  completeRound: (roundIndex: number) => void;
   restartWithSamePlayers: () => void;
   clearCurrentGame: () => void;
   clearHistory: () => void;
@@ -87,6 +91,20 @@ export const useGameStore = create<GameStore>()(
       updateScore: (playerId: PlayerId, roundIndex: number, points: number) => {
         const { currentScores } = get();
         const scores = updateScoreFromScores(currentScores, playerId, roundIndex, points);
+        set({ currentScores: scores });
+      },
+
+      deleteRound: (roundIndex: number) => {
+        const { currentScores } = get();
+        const scores = deleteRoundFromScores(currentScores, roundIndex);
+        set({ currentScores: scores });
+      },
+
+      completeRound: (roundIndex: number) => {
+        const { currentGame, currentScores } = get();
+        if (!currentGame) return;
+        const playerIds = currentGame.players.map((p) => p.id);
+        const scores = completeRoundFromScores(currentScores, playerIds, roundIndex);
         set({ currentScores: scores });
       },
 

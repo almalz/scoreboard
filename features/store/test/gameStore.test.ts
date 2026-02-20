@@ -100,6 +100,42 @@ describe('gameStore', () => {
     expect(state.history[0].scores[game.players[0].id]).toEqual([10]);
   });
 
+  it('deleteRound removes the round at given index for all players', () => {
+    const players = [createPlayer('Alice'), createPlayer('Bob')];
+    useGameStore.getState().createGame(players);
+    const game = useGameStore.getState().currentGame!;
+    const alice = game.players[0].id;
+    const bob = game.players[1].id;
+    useGameStore.getState().addScore(alice, 10);
+    useGameStore.getState().addScore(bob, 5);
+    useGameStore.getState().addScore(alice, 20);
+    useGameStore.getState().addScore(bob, 15);
+    useGameStore.getState().deleteRound(0);
+    const state = useGameStore.getState();
+    expect(state.currentScores[alice]).toEqual([20]);
+    expect(state.currentScores[bob]).toEqual([15]);
+  });
+
+  it('completeRound sets missing scores to 0 for the given round', () => {
+    const players = [createPlayer('Alice'), createPlayer('Bob')];
+    useGameStore.getState().createGame(players);
+    const game = useGameStore.getState().currentGame!;
+    const alice = game.players[0].id;
+    const bob = game.players[1].id;
+    useGameStore.getState().addScore(alice, 10);
+    useGameStore.getState().addScore(alice, 20);
+    // Bob has no scores yet
+    useGameStore.getState().completeRound(1);
+    const state = useGameStore.getState();
+    expect(state.currentScores[alice]).toEqual([10, 20]);
+    expect(state.currentScores[bob]).toEqual([0, 0]);
+  });
+
+  it('completeRound does nothing without a current game', () => {
+    useGameStore.getState().completeRound(0);
+    expect(useGameStore.getState().currentScores).toEqual({});
+  });
+
   describe('history grouping', () => {
     it('createGame with current game in progress adds it to history then starts new game', () => {
       const playersA = [createPlayer('Alice'), createPlayer('Bob')];
