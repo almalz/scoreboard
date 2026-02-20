@@ -68,6 +68,46 @@ export function getRankings(
   return rankings;
 }
 
+export function deleteRound(scores: Scores, roundIndex: number): Scores {
+  const next: Scores = {};
+  for (const [id, list] of Object.entries(scores)) {
+    const copy = [...list];
+    if (roundIndex >= 0 && roundIndex < copy.length) {
+      copy.splice(roundIndex, 1);
+    }
+    next[id] = copy;
+  }
+  return next;
+}
+
+export function completeRound(scores: Scores, playerIds: PlayerId[], roundIndex: number): Scores {
+  const next: Scores = {};
+  for (const [id, list] of Object.entries(scores)) {
+    next[id] = [...list];
+  }
+  for (const id of playerIds) {
+    const list = next[id] ?? [];
+    if (list.length <= roundIndex) {
+      while (list.length <= roundIndex) {
+        list.push(0);
+      }
+      next[id] = list;
+    }
+  }
+  return next;
+}
+
+export function getPlayersWithMissingScores(
+  scores: Scores,
+  playerIds: PlayerId[],
+  roundIndex: number
+): PlayerId[] {
+  return playerIds.filter((id) => {
+    const list = scores[id] ?? [];
+    return list.length <= roundIndex;
+  });
+}
+
 export function mergeScoresWithNewPlayers(
   scores: Scores,
   existingPlayerIds: PlayerId[],
